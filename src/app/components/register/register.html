@@ -1,0 +1,160 @@
+<main class="auth-layout">
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-content">
+      <div class="logo" routerLink="/">
+        <span class="logo-mark">EV</span>
+        <span class="logo-text">Rental</span>
+      </div>
+
+      <nav class="site-nav">
+        <a routerLink="/">Trang chủ</a>
+        <a routerLink="/vehicles">Thuê xe</a>
+        <a href="#stations">Bản đồ trạm sạc</a>
+      </nav>
+
+      <div class="header-battery">
+        <svg viewBox="0 0 36 18" width="36" height="18" fill="none">
+          <rect x="1" y="1" width="30" height="16" rx="3" ry="3" stroke="#34d399" stroke-width="1.5"/>
+          <rect x="31" y="5" width="4" height="8" rx="1.5" fill="#34d399"/>
+          <rect x="3" y="3" width="22" height="12" rx="2" fill="#34d399" opacity="0.85"/>
+        </svg>
+      </div>
+
+      <div class="header-actions">
+        <span class="text-link">Đã có tài khoản?</span>
+        <a routerLink="/login" class="btn-header">Đăng nhập</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Body -->
+  <div class="auth-container">
+    <div class="auth-card-wrapper">
+
+      <!-- LEFT: Visual panel -->
+      <section class="auth-left-panel">
+        <div class="glass-card">
+          <div class="logo-section">
+            <div class="ev-3d-icon">
+              <span>EV</span>
+            </div>
+            <h1 class="logo-title">EV<span>Rental</span></h1>
+          </div>
+          <div class="panel-content">
+            <h2>Tham gia<br>cộng đồng<br>xanh!</h2>
+            <p>Đăng ký để theo dõi lịch sử thuê xe, hủy đơn và nhận ưu đãi thành viên</p>
+            <ul class="features-list">
+              <li>
+                <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                Lưu lịch sử thuê xe vĩnh viễn
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="1" y="3" width="15" height="13" rx="2"></rect>
+                  <path d="m16 8 4 4-4 4"></path>
+                </svg>
+                Hủy đơn nhanh không cần gọi điện
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                Đăng ký làm đối tác cho thuê xe
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: Form panel -->
+      <section class="auth-right-panel">
+        <div class="form-container">
+          <h2>Tạo tài khoản</h2>
+          <p class="form-subtitle">Hoàn toàn miễn phí — không cần thẻ tín dụng</p>
+
+          <form (ngSubmit)="register()" class="auth-form">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="register-firstname">HỌ VÀ TÊN</label>
+                <input
+                  id="register-firstname"
+                  name="firstname"
+                  [(ngModel)]="user.firstname"
+                  type="text"
+                  placeholder="Nguyễn Văn A"
+                  required
+                >
+              </div>
+              <div class="form-group">
+                <label for="register-phone">SỐ ĐIỆN THOẠI</label>
+                <input
+                  id="register-phone"
+                  name="phone"
+                  [(ngModel)]="phone"
+                  type="text"
+                  placeholder="0901 234 567"
+                  required
+                >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="register-email">EMAIL</label>
+              <input
+                id="register-email"
+                name="email"
+                [(ngModel)]="user.email"
+                type="email"
+                placeholder="your@email.com"
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="register-password">MẬT KHẨU</label>
+              <input
+                id="register-password"
+                name="password"
+                [(ngModel)]="user.password"
+                type="password"
+                placeholder="Tạo mật khẩu (ít nhất 6 ký tự)"
+                required
+              >
+            </div>
+
+            <button type="submit" class="btn-submit" [disabled]="isSubmitting">
+              {{ isSubmitting ? 'Đang xử lý...' : 'Đăng ký ngay' }}
+            </button>
+          </form>
+
+          <div class="divider">hoặc</div>
+
+          <button class="btn-google" type="button">
+            <svg viewBox="0 0 24 24" width="18" height="18">
+              <path fill="#EA4335" d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3C17.782 1.145 15.055 0 12 0 7.27 0 3.198 2.698 1.24 6.65l4.026 3.115Z"/>
+              <path fill="#34A853" d="M16.04 18.013c-1.09.703-2.474 1.078-4.04 1.078a7.077 7.077 0 0 1-6.723-4.777L1.24 17.35C3.198 21.302 7.27 24 12 24c2.933 0 5.735-1.043 7.834-3l-3.793-2.987Z"/>
+              <path fill="#4A90D9" d="M19.834 21c2.195-2.048 3.62-5.096 3.62-9 0-.71-.109-1.473-.272-2.182H12v4.637h6.436c-.317 1.559-1.17 2.766-2.395 3.558L19.834 21Z"/>
+              <path fill="#FBBC05" d="M5.277 14.314a7.13 7.13 0 0 1-.376-2.314c0-.789.135-1.553.376-2.235L1.24 6.65A11.934 11.934 0 0 0 0 12c0 1.92.445 3.73 1.24 5.35l4.037-3.036Z"/>
+            </svg>
+            Tiếp tục với Google
+          </button>
+          
+          <!-- <p class="auth-message" [class.error]="isError" [class.success]="!isError && !!message">
+            {{ message }}
+          </p> -->
+
+          <p class="switch-auth">
+            Đã có tài khoản? <a routerLink="/login" class="link-switch">Đăng nhập</a>
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</main>

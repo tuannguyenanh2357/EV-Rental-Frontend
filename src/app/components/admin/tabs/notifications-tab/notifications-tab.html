@@ -1,0 +1,24 @@
+<div class="page-header-row">
+  <div class="page-title-box">
+    <h1>Trung tâm thông báo</h1>
+    <p>Danh sách các thông báo cảnh báo và hành động cập nhật trên hệ thống thời gian thực.</p>
+  </div>
+  <button class="btn-outline" (click)="markAllRead()">Đánh dấu đọc tất cả</button>
+</div>
+
+<div class="table-card" style="padding: 24px;">
+  <div class="activity-list" style="max-height: none;">
+    <div class="activity-item" *ngFor="let n of state.notifications()"
+         style="padding: 16px; border-bottom: 1px solid var(--admin-border-color); width: 100%; border-radius: 8px;"
+         [style.background-color]="n.read ? 'transparent' : 'var(--admin-primary-light)'">
+      <span class="activity-marker" [class.success]="n.type === 'rental'" [class.warning]="n.type === 'warning'" [class.danger]="n.type === 'partnership'" style="margin-top: 8px;"></span>
+      <div class="activity-content" style="flex: 1;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong style="font-size: 0.95rem;">{{ n.title }}</strong>
+          <span style="font-size: 0.75rem; color: var(--admin-text-muted);">{{ n.time }}</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--admin-text-secondary); margin: 6px 0 0 0;">{{ n.message }}</p>
+      </div>
+    </div>
+  </div>
+</div>

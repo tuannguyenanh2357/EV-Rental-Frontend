@@ -1,0 +1,58 @@
+<div class="page-header-row">
+  <div class="page-title-box">
+    <h1>Danh sách người dùng</h1>
+    <p>Quản lý quyền hạn tài khoản, xem lịch sử và thực thi vô hiệu hoá/mở khoá tài khoản thành viên.</p>
+  </div>
+</div>
+
+<div class="table-card">
+  <div class="table-header-filters">
+    <input type="text" class="table-search-input" placeholder="Tìm theo tên đăng nhập, email, họ tên..." [(ngModel)]="userSearch" (keyup)="filterUsers()" style="max-width: 380px;" />
+  </div>
+
+  <div class="responsive-table-wrapper">
+    <table class="admin-data-table">
+      <thead>
+        <tr>
+          <th>Người dùng</th>
+          <th>Email</th>
+          <th>Độ tuổi</th>
+          <th>Vai trò</th>
+          <th>Trạng thái tài khoản</th>
+          <th>Thao tác quản trị</th>
+          <th>Xem chi tiết</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of filteredUsers">
+          <td>
+            <div>
+              <strong>{{ u.username }}</strong>
+              <div style="font-size: 0.75rem; color: var(--admin-text-muted);">{{ u.firstname }} {{ u.lastname }}</div>
+            </div>
+          </td>
+          <td>{{ u.email || 'Chưa khai báo' }}</td>
+          <td>{{ u.age || 'N/A' }}</td>
+          <td>
+            <span class="status-badge" [class.available]="u.role === 'ADMIN'" [class.rented]="u.role === 'customer' || !u.role">
+              {{ u.role === 'ADMIN' ? 'ADMIN' : 'Customer' }}
+            </span>
+          </td>
+          <td>
+            <span class="status-badge" [class.available]="!u.locked" [class.cancelled]="u.locked">
+              {{ u.locked ? 'Đang khoá' : 'Hoạt động' }}
+            </span>
+          </td>
+          <td>
+            <button class="btn-outline" style="padding: 4px 8px; font-size: 0.75rem;" (click)="onToggleLock(u)">
+              {{ u.locked ? '🔓 Mở khoá' : '🔒 Khoá TK' }}
+            </button>
+          </td>
+          <td>
+            <button class="btn-icon-action" (click)="onViewUser(u)">👁️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

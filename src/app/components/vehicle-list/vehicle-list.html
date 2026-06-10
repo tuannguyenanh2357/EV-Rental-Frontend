@@ -1,0 +1,153 @@
+<div class="list-page">
+  <!-- Modern Header -->
+  <header class="site-header">
+    <div class="logo" routerLink="/">
+      <span class="logo-mark">EV</span>
+      <span class="logo-text">Rental</span>
+    </div>
+    <nav class="site-nav">
+      <a routerLink="/">Trang chủ</a>
+      <a routerLink="/vehicles" class="active">Thuê xe</a>
+      <a routerLink="/">Bản đồ trạm sạc</a>
+      <a routerLink="/profile">Quản lý chuyến đi</a>
+    </nav>
+    <div class="header-actions">
+      <a routerLink="/profile" class="btn-outline">Tài khoản</a>
+    </div>
+  </header>
+
+  <!-- Content Layout -->
+  <main class="list-container">
+    <!-- Filters Sidebar -->
+    <aside class="filter-sidebar">
+      <div class="sidebar-header">
+        <h3>Bộ lọc xe</h3>
+        <button class="btn-text" (click)="resetFilters()">Đặt lại</button>
+      </div>
+
+      <div class="filter-group">
+        <label>Tìm kiếm xe</label>
+        <div class="search-input-wrapper">
+          <input type="text" [(ngModel)]="searchQuery" (input)="applyFilters()" placeholder="Tên xe, địa điểm..." />
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Ngày thuê xe</label>
+        <input type="date" [(ngModel)]="selectedDate" (change)="applyFilters()" style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box;" />
+      </div>
+
+      <div class="filter-group">
+        <label>Hãng sản xuất</label>
+        <select [(ngModel)]="selectedBrand" (change)="applyFilters()">
+          <option value="ALL">Tất cả hãng</option>
+          <option *ngFor="let brand of brands" [value]="brand">{{ brand }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Trạng thái</label>
+        <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="AVAILABLE">Có sẵn</option>
+          <option value="RENTED">Đang được thuê</option>
+          <option value="MAINTENANCE">Bảo trì</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Loại sạc</label>
+        <select [(ngModel)]="selectedChargeType" (change)="applyFilters()">
+          <option value="ALL">Tất cả loại sạc</option>
+          <option *ngFor="let type of chargeTypes" [value]="type">{{ type }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <div class="price-range-header">
+          <label>Giá thuê tối đa</label>
+          <span class="price-val">{{ maxPrice.toLocaleString() }}đ</span>
+        </div>
+        <input type="range" min="100000" max="10000000" step="100000" [(ngModel)]="maxPrice" (input)="applyFilters()" class="price-slider" />
+        <div class="slider-labels">
+          <span>100Kđ</span>
+          <span>10Mđ</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Listings Section -->
+    <section class="results-section">
+      <div class="results-header">
+        <h2>Danh sách phương tiện</h2>
+        <span class="count-badge">{{ filteredVehicles.length }} xe được tìm thấy</span>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-state" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>Đang tìm những chiếc xe tốt nhất...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="!loading && filteredVehicles.length === 0">
+        <div class="empty-icon">🚗</div>
+        <h4>Không tìm thấy xe phù hợp</h4>
+        <p>Thử đặt lại bộ lọc hoặc thay đổi từ khóa tìm kiếm của bạn.</p>
+        <button class="btn-solid" (click)="resetFilters()">Đặt lại bộ lọc</button>
+      </div>
+
+      <!-- Vehicle Cards Grid -->
+      <div class="vehicle-grid" *ngIf="!loading && filteredVehicles.length > 0">
+        <article class="vehicle-card" *ngFor="let car of paginatedVehicles" [routerLink]="['/vehicles', car.id]">
+          <div class="card-image-wrapper">
+            <img *ngIf="car.imageUrl" [src]="getFirstImage(car.imageUrl)" [alt]="car.name" />
+            <div *ngIf="!car.imageUrl" class="car-placeholder">🚗</div>
+            <span class="status-badge" [class.available]="car.status === 'AVAILABLE'" [class.booked]="car.status === 'RENTED'">
+              {{ car.status === 'AVAILABLE' ? 'Có sẵn' : (car.status === 'RENTED' ? 'Đã đặt' : 'Bảo trì') }}
+            </span>
+          </div>
+
+          <div class="card-details">
+            <div class="card-header-row">
+              <h3>{{ car.name }}</h3>
+              <span class="location-pill">{{ car.location || 'Hà Nội' }}</span>
+            </div>
+            <p class="brand-sub">{{ car.brand }} · {{ car.year }}</p>
+
+            <div class="specs-chips">
+              <span class="chip">🔋 {{ car.batteryKwh }} kWh</span>
+              <span class="chip">⚡ {{ car.rangeKm }} km</span>
+              <span class="chip">🔌 {{ car.chargeType }}</span>
+            </div>
+
+            <div class="card-footer-row">
+              <div class="price-container">
+                <span class="amount">{{ car.pricePerDay.toLocaleString() }}đ</span>
+                <span class="unit">/ngày</span>
+              </div>
+              <button class="btn-action" [disabled]="car.status === 'RENTED'">
+                {{ car.status === 'RENTED' ? 'Đã đặt' : 'Xem chi tiết' }}
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="pagination-controls" *ngIf="totalPages > 1 && !loading">
+        <button class="btn-page" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+          &laquo; Trước
+        </button>
+        <button class="btn-page" *ngFor="let page of pages" 
+                [class.active]="page === currentPage" 
+                (click)="changePage(page)">
+          {{ page }}
+        </button>
+        <button class="btn-page" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+          Sau &raquo;
+        </button>
+      </div>
+    </section>
+  </main>
+</div>

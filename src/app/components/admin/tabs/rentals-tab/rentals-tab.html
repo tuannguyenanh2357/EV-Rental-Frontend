@@ -1,0 +1,82 @@
+<div class="page-header-row">
+  <div class="page-title-box">
+    <h1>Quản lý đơn thuê xe</h1>
+    <p>Danh sách các đơn đặt xe, duyệt đơn mới, cập nhật trạng thái trả nhận xe.</p>
+  </div>
+</div>
+
+<div class="table-card">
+  <div class="table-header-filters">
+    <div class="table-filters-left">
+      <input type="text" class="table-search-input" placeholder="Tìm theo tên khách, SĐT, biển số xe..." [(ngModel)]="rentalSearch" (keyup)="filterRentals()" />
+      <select class="table-select-filter" [(ngModel)]="rentalStatus" (change)="filterRentals()">
+        <option value="">Tất cả trạng thái</option>
+        <option value="PENDING">Chờ duyệt (Pending)</option>
+        <option value="CONFIRMED">Đã duyệt (Confirmed)</option>
+        <option value="ACTIVE">Đang hoạt động (Active)</option>
+        <option value="COMPLETED">Hoàn thành (Completed)</option>
+        <option value="CANCELLED">Đã huỷ (Cancelled)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="responsive-table-wrapper">
+    <table class="admin-data-table">
+      <thead>
+        <tr>
+          <th>Khách hàng</th>
+          <th>Biển số xe</th>
+          <th>Ngày thuê / Trả</th>
+          <th>Thanh toán (Tổng)</th>
+          <th>Trạng thái</th>
+          <th>Thao tác xử lý nhanh</th>
+          <th>Chi tiết</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filteredRentals">
+          <td>
+            <div>
+              <strong>{{ r.customerName }}</strong>
+              <div style="font-size: 0.75rem; color: var(--admin-text-muted);">📞 {{ r.customerPhone }}</div>
+            </div>
+          </td>
+          <td><strong>{{ r.vehicleLicensePlate }}</strong></td>
+          <td>
+            <div style="font-size: 0.85rem;">
+              <div>🟢 {{ r.rentalDate | date:'dd/MM/yyyy' }}</div>
+              <div style="color: var(--admin-text-muted);">🔴 {{ r.returnDate | date:'dd/MM/yyyy' }}</div>
+            </div>
+          </td>
+          <td><strong>{{ (r.totalPrice || ((r.depositAmount || 0) + (r.remainingAmount || 0))).toLocaleString() }}đ</strong></td>
+          <td>
+            <span class="status-badge" [class.pending]="r.rentalStatus === 'PENDING'" [class.active]="r.rentalStatus === 'CONFIRMED' || r.rentalStatus === 'ACTIVE'" [class.available]="r.rentalStatus === 'COMPLETED'" [class.cancelled]="r.rentalStatus === 'CANCELLED'">
+              {{ r.rentalStatus === 'PENDING' ? 'Chờ duyệt' : r.rentalStatus === 'CONFIRMED' ? 'Đã duyệt' : r.rentalStatus === 'ACTIVE' ? 'Hoạt động' : r.rentalStatus === 'COMPLETED' ? 'Hoàn thành' : 'Đã huỷ' }}
+            </span>
+          </td>
+          <td>
+            <div style="display: flex; gap: 6px;">
+              <button *ngIf="r.rentalStatus === 'PENDING'" class="btn-primary" style="padding: 4px 8px; font-size: 0.75rem;" (click)="onUpdateStatus(r.id, 'CONFIRMED')">Duyệt</button>
+              <button *ngIf="r.rentalStatus === 'PENDING'" class="btn-outline" style="padding: 4px 8px; font-size: 0.75rem; border-color: #fca5a5; color: #ef4444;" (click)="onUpdateStatus(r.id, 'CANCELLED')">Huỷ</button>
+              <button *ngIf="r.rentalStatus === 'CONFIRMED'" class="btn-primary" style="padding: 4px 8px; font-size: 0.75rem; background-color: #3b82f6;" (click)="onUpdateStatus(r.id, 'ACTIVE')">Giao xe</button>
+              <button *ngIf="r.rentalStatus === 'ACTIVE'" class="btn-primary" style="padding: 4px 8px; font-size: 0.75rem; background-color: #10b981;" (click)="onUpdateStatus(r.id, 'COMPLETED')">Hoàn thành</button>
+              <span *ngIf="r.rentalStatus === 'COMPLETED' || r.rentalStatus === 'CANCELLED'" style="font-size: 0.8rem; color: var(--admin-text-muted);">Đơn hàng đã hoàn thành hoặc bị huỷ không thể thao thác nữa!</span>
+            </div>
+          </td>
+          <td>
+            <button class="btn-icon-action" (click)="onViewRental(r)">👁️</button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredRentals.length === 0">
+          <td colspan="7">
+            <div class="empty-state-wrapper">
+              <div class="empty-state-icon">📋</div>
+              <div class="empty-state-title">Không tìm thấy đơn thuê xe nào</div>
+              <p class="empty-state-desc">Hãy thay đổi bộ lọc hoặc kiểm tra từ khóa tìm kiếm khác.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

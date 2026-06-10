@@ -1,0 +1,117 @@
+<div class="page-header-row">
+  <div class="page-title-box">
+    <h1>Quản lý phương tiện</h1>
+    <p>Thêm mới, sửa đổi trạng thái và xem lịch trình các phương tiện cho thuê.</p>
+  </div>
+  <button class="btn-primary" (click)="onAddVehicle()">
+    <span>+</span> Thêm xe mới
+  </button>
+</div>
+
+<!-- Table & Filter card -->
+<div class="table-card" style="margin-bottom: 32px;">
+  <div class="table-header-filters">
+    <div class="table-filters-left">
+      <input type="text" class="table-search-input" placeholder="Tìm theo tên xe, hãng, biển số..." [(ngModel)]="vehicleSearch" (keyup)="filterVehicles()" />
+      <select class="table-select-filter" [(ngModel)]="vehicleStatus" (change)="filterVehicles()">
+        <option value="">Tất cả trạng thái</option>
+        <option value="AVAILABLE">Có sẵn (Available)</option>
+        <option value="RENTED">Đang thuê (Rented)</option>
+        <option value="MAINTENANCE">Bảo dưỡng (Maintenance)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="responsive-table-wrapper">
+    <table class="admin-data-table">
+      <thead>
+        <tr>
+          <th>Phương tiện</th>
+          <th>Hãng</th>
+          <th>Biển số</th>
+          <th>Loại sạc / Quãng đường</th>
+          <th>Giá thuê/Ngày</th>
+          <th>Trạng thái</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let v of filteredVehicles">
+          <td>
+            <div class="thumbnail-cell">
+              <img [src]="state.getFirstImage(v.imageUrl)" class="table-thumbnail" alt="Image" />
+              <div>
+                <strong>{{ v.name }}</strong>
+                <div style="font-size: 0.75rem; color: var(--admin-text-muted);">{{ v.model }}</div>
+              </div>
+            </div>
+          </td>
+          <td>{{ v.brand }}</td>
+          <td>{{ v.licensePlate || 'N/A' }}</td>
+          <td>{{ v.chargeType }} / {{ v.rangeKm }} km</td>
+          <td>{{ (v.pricePerDay || 0).toLocaleString() }}đ</td>
+          <td>
+            <span class="status-badge" [class.available]="v.status === 'AVAILABLE'" [class.rented]="v.status === 'RENTED'" [class.maintenance]="v.status === 'MAINTENANCE'">
+              {{ v.status === 'AVAILABLE' ? 'Có sẵn' : v.status === 'RENTED' ? 'Đã thuê' : 'Bảo dưỡng' }}
+            </span>
+          </td>
+          <td>
+            <div class="action-buttons-cell">
+              <button class="btn-icon-action" title="Xem chi tiết" (click)="onViewVehicle(v)">👁️</button>
+              <button class="btn-icon-action" title="Chỉnh sửa thông tin" (click)="onEditVehicle(v)">✏️</button>
+              <button class="btn-icon-action danger" title="Xóa xe" (click)="onDeleteVehicle(v)">🗑️</button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredVehicles.length === 0">
+          <td colspan="7">
+            <div class="empty-state-wrapper">
+              <div class="empty-state-icon">🚗</div>
+              <div class="empty-state-title">Không tìm thấy phương tiện nào</div>
+              <p class="empty-state-desc">Hãy thử thay đổi từ khóa tìm kiếm hoặc bộ lọc.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Calendar Bookings Scheduler -->
+<div class="dashboard-card">
+  <div class="card-header-row">
+    <div>
+      <h3 class="card-title">Lịch trình chiếm dụng xe</h3>
+      <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: var(--admin-text-muted);">Trạng thái phân phối xe thực tế theo ngày trong tháng.</p>
+    </div>
+    <span style="font-weight: 600; font-size: 0.9rem;">📅 {{ selectedCalendarMonth }}</span>
+  </div>
+
+  <div class="calendar-grid">
+    <div class="calendar-day-header">T2</div>
+    <div class="calendar-day-header">T3</div>
+    <div class="calendar-day-header">T4</div>
+    <div class="calendar-day-header">T5</div>
+    <div class="calendar-day-header">T6</div>
+    <div class="calendar-day-header">T7</div>
+    <div class="calendar-day-header">CN</div>
+
+    <div class="calendar-day" *ngFor="let day of calendarDays" [class.inactive]="!day.active" [class.has-booking]="day.hasBooking">
+      <span class="calendar-day-num">{{ day.dayNum }}</span>
+      <div class="calendar-booking-indicator" *ngFor="let b of day.bookings">
+        <div class="booking-text">
+          <strong>{{ b.carName }}</strong>
+          <span>{{ b.licensePlate }}</span>
+        </div>
+        <div class="booking-tooltip">
+          <img [src]="state.getFirstImage(b.vehicleImage)" alt="Xe" />
+          <div class="tooltip-info">
+            <h4>{{ b.carName }}</h4>
+            <span>Biển số: {{ b.licensePlate }}</span>
+            <span>Khách: {{ b.customerName }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

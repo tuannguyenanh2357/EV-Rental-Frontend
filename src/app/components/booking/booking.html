@@ -1,0 +1,264 @@
+<div class="booking-page">
+  <!-- Header -->
+  <header class="site-header">
+    <div class="logo" routerLink="/">
+      <span class="logo-mark">EV</span>
+      <span class="logo-text">Rental</span>
+    </div>
+    <nav class="site-nav">
+      <a routerLink="/">Trang chủ</a>
+      <a routerLink="/vehicles">Thuê xe</a>
+      <a routerLink="/profile">Quản lý chuyến đi</a>
+    </nav>
+    <div class="header-actions">
+      <a routerLink="/profile" class="btn-outline">Tài khoản</a>
+    </div>
+  </header>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Đang tải thông tin xe...</p>
+  </div>
+
+  <!-- Step 3: Success -->
+  <div class="success-panel" *ngIf="!loading && currentStep === 3">
+    <div class="success-icon">✓</div>
+    <h2>Đơn đặt xe đã được tạo!</h2>
+    <p class="success-desc">
+      Cảm ơn <strong>{{ customerName }}</strong>! Đơn của bạn đã được ghi nhận với mã <strong>{{ createdRental?.rentalCode }}</strong>.
+      Admin sẽ liên hệ qua số <strong>{{ customerPhone }}</strong> để xác nhận.
+    </p>
+
+    <!-- QR Section (BANK_TRANSFER) -->
+    <div class="qr-section" *ngIf="createdRental?.paymentMethod === 'BANK_TRANSFER'">
+      <h3>Quét QR để đặt cọc (20%)</h3>
+      <p class="qr-desc">Vui lòng dùng ứng dụng ngân hàng quét mã QR dưới đây để thanh toán.</p>
+      
+      <div class="qr-box">
+        <img *ngIf="createdRental?.qrCodeUrl" [src]="createdRental?.qrCodeUrl" alt="QR Chuyển khoản" class="qr-image" />
+      </div>
+      
+      <div class="qr-details">
+        <p>Số tiền cọc: <strong class="deposit-amount">{{ createdRental?.depositAmount?.toLocaleString() }}đ</strong></p>
+        <p>Nội dung CK: <strong>COC {{ createdRental?.rentalCode }}</strong></p>
+      </div>
+      
+      <p class="success-note">Sau khi bạn chuyển khoản, Admin sẽ kiểm tra và xác nhận giữ xe.</p>
+    </div>
+
+    <!-- Cash Section (CASH) -->
+    <div class="cash-section" *ngIf="createdRental?.paymentMethod === 'CASH'">
+      <h3>Đặt cọc bằng tiền mặt (20%)</h3>
+      <div class="cash-details">
+        <p>Số tiền cọc cần đóng: <strong class="deposit-amount">{{ createdRental?.depositAmount?.toLocaleString() }}đ</strong></p>
+        <p>Khách hàng vui lòng đến trực tiếp văn phòng EV Rental để đóng cọc.</p>
+        <p class="success-note">Sau khi nhận tiền cọc, Admin sẽ xác nhận giữ xe trên hệ thống.</p>
+      </div>
+    </div>
+
+    <div class="success-actions">
+      <a routerLink="/profile" class="btn-next">Xem lịch sử đặt xe</a>
+      <a routerLink="/vehicles" class="btn-back">Khám phá xe khác</a>
+    </div>
+  </div>
+
+  <!-- Main Booking Grid -->
+  <div class="booking-container" *ngIf="!loading && vehicle && currentStep < 3">
+
+    <!-- Stepper -->
+    <div class="stepper">
+      <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+        <div class="step-num">{{ currentStep > 1 ? '✓' : '1' }}</div>
+        <span class="step-label">Thông tin</span>
+      </div>
+      <div class="step-line" [class.completed]="currentStep > 1"></div>
+      <div class="step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
+        <div class="step-num">2</div>
+        <span class="step-label">Xác nhận</span>
+      </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="booking-grid">
+
+      <!-- LEFT: Form Steps -->
+      <div class="step-panel">
+
+        <!-- Step 1: Customer Info -->
+        <ng-container *ngIf="currentStep === 1">
+          <h2>Thông tin khách hàng</h2>
+          <p class="panel-desc">Vui lòng điền thông tin để chúng tôi liên hệ xác nhận đơn.</p>
+
+          <div class="checkout-form">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="custName">Họ và tên <span class="required">*</span></label>
+                <input id="custName" type="text" [(ngModel)]="customerName" placeholder="VD: Nguyễn Văn A" />
+              </div>
+              <div class="form-group">
+                <label for="custPhone">Số điện thoại <span class="required">*</span></label>
+                <input id="custPhone" type="tel" [(ngModel)]="customerPhone" placeholder="VD: 0901234567" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="custAddress">Địa chỉ nhận xe</label>
+              <input id="custAddress" type="text" [(ngModel)]="customerAddress" placeholder="VD: 123 Lê Lợi, Q.1, TP.HCM (hoặc để trống nếu nhận tại cửa hàng)" />
+            </div>
+
+            <!-- Phương thức đặt cọc -->
+            <div class="form-group">
+              <label>Phương thức thanh toán cọc</label>
+              <div class="payment-method-list">
+                <label class="method-option" [class.selected]="paymentMethod === 'BANK_TRANSFER'">
+                  <input type="radio" name="payMethod" value="BANK_TRANSFER" [(ngModel)]="paymentMethod" />
+                  <span class="method-icon">🏦</span>
+                  <div>
+                    <strong>Chuyển khoản ngân hàng (Quét QR)</strong>
+                    <p>Hệ thống sẽ sinh mã QR, bạn quét để chuyển khoản cọc</p>
+                  </div>
+                </label>
+
+                <label class="method-option" [class.selected]="paymentMethod === 'CASH'">
+                  <input type="radio" name="payMethod" value="CASH" [(ngModel)]="paymentMethod" />
+                  <span class="method-icon">💵</span>
+                  <div>
+                    <strong>Tiền mặt tại văn phòng</strong>
+                    <p>Đến trực tiếp văn phòng để đặt cọc</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="custNotes">Ghi chú thêm</label>
+              <textarea id="custNotes" class="form-textarea" rows="3" [(ngModel)]="customerNotes"
+                placeholder="VD: Cần xe sạc đầy, muốn nhận xe buổi sáng..."></textarea>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <a routerLink="/vehicles" class="btn-back">← Quay lại</a>
+            <button class="btn-next" (click)="nextStep()">Xem xác nhận →</button>
+          </div>
+        </ng-container>
+
+        <!-- Step 2: Confirm -->
+        <ng-container *ngIf="currentStep === 2">
+          <h2>Xác nhận đơn thuê</h2>
+          <p class="panel-desc">Kiểm tra lại thông tin trước khi gửi đơn đặt cọc.</p>
+
+          <div class="confirmation-details">
+            <!-- Customer -->
+            <div class="confirm-group">
+              <h4>👤 Thông tin khách hàng</h4>
+              <p><strong>Họ tên:</strong> {{ customerName }}</p>
+              <p><strong>Điện thoại:</strong> {{ customerPhone }}</p>
+              <p><strong>Địa chỉ nhận:</strong> {{ customerAddress || 'Nhận tại cửa hàng' }}</p>
+              <p *ngIf="customerNotes"><strong>Ghi chú:</strong> {{ customerNotes }}</p>
+            </div>
+
+            <!-- Trip Info -->
+            <div class="confirm-group">
+              <h4>🗓 Thông tin chuyến đi</h4>
+              <p><strong>Ngày nhận xe:</strong> {{ rentalDate }}</p>
+              <p><strong>Ngày trả xe:</strong> {{ returnDate }}</p>
+              <p><strong>Xe:</strong> {{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.year }})</p>
+            </div>
+
+            <!-- Deposit Info -->
+            <div class="confirm-group deposit-group">
+              <h4>💰 Thanh toán đặt cọc</h4>
+              <div class="confirm-price-row">
+                <span>Giá thuê gốc</span>
+                <span>{{ basePrice.toLocaleString() }}đ</span>
+              </div>
+              <div class="confirm-price-row">
+                <span>VAT (8%)</span>
+                <span>{{ vatAmount.toLocaleString() }}đ</span>
+              </div>
+              <div class="confirm-price-row total-row">
+                <span>Tổng cộng</span>
+                <strong>{{ finalPrice.toLocaleString() }}đ</strong>
+              </div>
+              <div class="deposit-box">
+                <div class="deposit-info">
+                  <span class="deposit-label">Cọc ngay để giữ xe (20%)</span>
+                  <strong class="deposit-amount">{{ depositAmount.toLocaleString() }}đ</strong>
+                </div>
+                <div class="deposit-remain">
+                  <span>Thanh toán khi nhận xe</span>
+                  <span>{{ remainingAmount.toLocaleString() }}đ</span>
+                </div>
+                <div class="deposit-method">
+                  <span>🔖 Phương thức cọc:</span>
+                  <strong>{{ getPaymentMethodLabel() }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button class="btn-back" (click)="prevStep()">← Sửa thông tin</button>
+            <button class="btn-next confirm" (click)="submitBooking()" [disabled]="submitting">
+              {{ submitting ? 'Đang gửi...' : '✓ Xác nhận đặt cọc' }}
+            </button>
+          </div>
+        </ng-container>
+
+      </div>
+
+      <!-- RIGHT: Summary Card -->
+      <div class="summary-card">
+        <h3>Tóm tắt đơn thuê</h3>
+
+        <!-- Car Info -->
+        <div class="car-info-row">
+          <img *ngIf="vehicle.imageUrl" [src]="vehicle.imageUrl" [alt]="vehicle.name" />
+          <div class="car-placeholder-small" *ngIf="!vehicle.imageUrl">🚗</div>
+          <div>
+            <h4>{{ vehicle.brand }} {{ vehicle.model }}</h4>
+            <p>{{ vehicle.year }} · {{ vehicle.color || 'Điện' }}</p>
+          </div>
+        </div>
+
+        <!-- Price Breakdown -->
+        <div class="details-list">
+          <div class="details-row">
+            <span>Ngày nhận xe</span>
+            <span>{{ rentalDate || '—' }}</span>
+          </div>
+          <div class="details-row">
+            <span>Ngày trả xe</span>
+            <span>{{ returnDate || '—' }}</span>
+          </div>
+          <div class="divider"></div>
+          <div class="details-row">
+            <span>Giá thuê gốc</span>
+            <span>{{ basePrice.toLocaleString() }}đ</span>
+          </div>
+          <div class="details-row">
+            <span>VAT (8%)</span>
+            <span>{{ vatAmount.toLocaleString() }}đ</span>
+          </div>
+          <div class="divider"></div>
+          <div class="details-row total">
+            <span>Tổng cộng</span>
+            <span class="total-price">{{ finalPrice.toLocaleString() }}đ</span>
+          </div>
+        </div>
+
+        <!-- Deposit Highlight -->
+        <div class="deposit-summary-box">
+          <div class="deposit-summary-header">
+            <span>🔐 Đặt cọc giữ xe (20%)</span>
+          </div>
+          <div class="deposit-summary-amount">{{ depositAmount.toLocaleString() }}đ</div>
+          <p class="deposit-summary-note">Thanh toán cọc ngay — phần còn lại trả khi bàn giao nhận xe</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

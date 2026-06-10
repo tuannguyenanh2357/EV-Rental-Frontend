@@ -1,0 +1,177 @@
+<div class="detail-page">
+  <!-- Modern Header -->
+  <header class="site-header">
+    <div class="logo" routerLink="/">
+      <span class="logo-mark">EV</span>
+      <span class="logo-text">Rental</span>
+    </div>
+    <nav class="site-nav">
+      <a routerLink="/">Trang chủ</a>
+      <a routerLink="/vehicles" class="active">Thuê xe</a>
+      <a routerLink="/">Bản đồ trạm sạc</a>
+      <a routerLink="/profile">Quản lý chuyến đi</a>
+    </nav>
+    <div class="header-actions">
+      <a routerLink="/profile" class="btn-outline">Tài khoản</a>
+    </div>
+  </header>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Đang tải chi tiết xe...</p>
+  </div>
+
+  <main class="detail-container" *ngIf="!loading && vehicle">
+    <!-- Left Column: Media & Specifications -->
+    <div class="media-specs-col">
+      <div class="navigation-crumbs">
+        <a routerLink="/vehicles">← Quay lại danh sách</a>
+      </div>
+
+      <!-- Showcase Image Carousel -->
+      <div class="showcase-box" style="position: relative; overflow: hidden; border-radius: 12px;">
+        <!-- Images -->
+        <ng-container *ngIf="imageUrls.length > 0">
+          <img [src]="imageUrls[currentImageIndex]" [alt]="vehicle.name" class="main-vehicle-image" style="width: 100%; height: auto; display: block; transition: opacity 0.3s ease-in-out;" />
+          
+          <!-- Prev / Next Controls -->
+          <button *ngIf="imageUrls.length > 1" class="carousel-control prev" (click)="prevImage($event)" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.8); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10;">
+            ❮
+          </button>
+          <button *ngIf="imageUrls.length > 1" class="carousel-control next" (click)="nextImage($event)" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.8); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10;">
+            ❯
+          </button>
+
+          <!-- Dots -->
+          <div *ngIf="imageUrls.length > 1" class="carousel-dots" style="position: absolute; bottom: 16px; display: flex; gap: 8px; justify-content: center; width: 100%;">
+            <span *ngFor="let dot of imageUrls; let i = index" class="dot" [class.active]="i === currentImageIndex" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(0,0,0,0.3); transition: background 0.3s;" [style.background]="i === currentImageIndex ? '#3b82f6' : 'rgba(0,0,0,0.3)'"></span>
+          </div>
+        </ng-container>
+
+        <div *ngIf="imageUrls.length === 0" class="placeholder-image" style="font-size: 4rem; opacity: 0.5;">🚗</div>
+      </div>
+
+      <!-- Specs Sheet -->
+      <div class="spec-section">
+        <h2>Thông số kỹ thuật</h2>
+        <div class="specs-grid">
+          <div class="spec-card">
+            <span class="spec-label">Hãng sản xuất</span>
+            <strong class="spec-value">{{ vehicle.brand }}</strong>
+          </div>
+          <div class="spec-card">
+            <span class="spec-label">Năm sản xuất</span>
+            <strong class="spec-value">{{ vehicle.year }}</strong>
+          </div>
+          <div class="spec-card">
+            <span class="spec-label">Mẫu xe</span>
+            <strong class="spec-value">{{ vehicle.model }}</strong>
+          </div>
+          <div class="spec-card">
+            <span class="spec-label">Màu sắc</span>
+            <strong class="spec-value">{{ vehicle.color || 'Xanh' }}</strong>
+          </div>
+          <div class="spec-card">
+            <span class="spec-label">Dung lượng pin</span>
+            <strong class="spec-value">{{ vehicle.batteryKwh }} kWh</strong>
+          </div>
+          <div class="spec-card">
+            <span class="spec-label">Quãng đường di chuyển</span>
+            <strong class="spec-value">{{ vehicle.rangeKm }} km</strong>
+          </div>
+          <div class="spec-card">
+            <span class="spec-label">Loại sạc hỗ trợ</span>
+            <strong class="spec-value">{{ vehicle.chargeType }}</strong>
+          </div>
+          <div class="spec-card">
+            <span class="spec-label">Địa điểm</span>
+            <strong class="spec-value">{{ vehicle.location || 'Hà Nội' }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description Section -->
+      <div class="description-section">
+        <h2>Chi tiết về xe</h2>
+        <p class="description-text">
+          {{ vehicle.description || 'Mẫu xe điện thế hệ mới sở hữu thiết kế đột phá, tích hợp nhiều công nghệ an toàn thông minh hàng đầu. Với khả năng vận hành êm ái, tăng tốc mạnh mẽ và phạm vi di chuyển ấn tượng, đây sẽ là lựa chọn tuyệt vời cho các chuyến công tác, đi phố hay dã ngoại cùng gia đình.' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Right Column: Sticky Booking Widget -->
+    <div class="booking-widget-col">
+      <div class="booking-card">
+        <div class="booking-card-header">
+          <div class="price-desc">
+            <span class="price-val">{{ vehicle.pricePerDay.toLocaleString() }}đ</span>
+            <span class="price-unit">/ngày</span>
+          </div>
+          <span class="badge" [class.available]="isAvailableForSelectedDates" [class.booked]="!isAvailableForSelectedDates">
+            {{ isAvailableForSelectedDates ? 'Sẵn sàng' : 'Không trống' }}
+          </span>
+        </div>
+
+        <div class="booking-inputs">
+          <div class="date-input-group">
+            <label for="rentalDate">Ngày nhận xe</label>
+            <input type="date" id="rentalDate" [(ngModel)]="rentalDate" (change)="calculatePrice()" min="2026-06-06" />
+          </div>
+          <div class="date-input-group">
+            <label for="returnDate">Ngày trả xe</label>
+            <input type="date" id="returnDate" [(ngModel)]="returnDate" (change)="calculatePrice()" [min]="rentalDate || '2026-06-06'" />
+          </div>
+        </div>
+
+        <!-- Error Message for Availability -->
+        <div class="availability-error" *ngIf="rentalDate && returnDate && !isAvailableForSelectedDates" style="color: #ef4444; font-size: 13px; margin-top: 12px; padding: 10px; background: #fef2f2; border-radius: 8px; border: 1px solid #fecaca; display: flex; align-items: center; gap: 8px;">
+          <span>⚠️</span>
+          <span>Xe hiện đang không trống trong thời gian này. Vui lòng chọn ngày khác hoặc chọn xe khác.</span>
+        </div>
+
+        <!-- Cost Breakdown -->
+        <div class="price-breakdown" *ngIf="totalDays > 0">
+          <div class="breakdown-row">
+            <span>Đơn giá ngày</span>
+            <span>{{ vehicle.pricePerDay.toLocaleString() }}đ</span>
+          </div>
+          <div class="breakdown-row">
+            <span>Số ngày thuê</span>
+            <span>{{ totalDays }} ngày</span>
+          </div>
+          <div class="breakdown-row highlight" *ngIf="totalDays >= 7 && vehicle.pricePerWeek">
+            <span>Ưu đãi thuê tuần áp dụng</span>
+            <span>Có</span>
+          </div>
+          <div class="breakdown-total">
+            <span>Tổng cộng</span>
+            <span>{{ totalPrice.toLocaleString() }}đ</span>
+          </div>
+        </div>
+
+        <!-- Call To Action -->
+        <button class="btn-checkout-solid" [disabled]="totalDays <= 0 || !isAvailableForSelectedDates" (click)="proceedToBooking()" [style.opacity]="(!isAvailableForSelectedDates || totalDays <= 0) ? '0.6' : '1'" [style.cursor]="(!isAvailableForSelectedDates || totalDays <= 0) ? 'not-allowed' : 'pointer'">
+          {{ !isAvailableForSelectedDates ? 'Xe không trống' : (totalDays > 0 ? 'Tiến hành thuê xe' : 'Chọn ngày thuê') }}
+        </button>
+
+        <div class="trust-indicators">
+          <div class="indicator">
+            <span class="icon">🌿</span>
+            <div>
+              <strong>0đ thanh toán trước</strong>
+              <p>Chỉ cần đặt lịch, admin sẽ gọi điện chốt đơn.</p>
+            </div>
+          </div>
+          <div class="indicator">
+            <span class="icon">🛡️</span>
+            <div>
+              <strong>Bảo hiểm đầy đủ</strong>
+              <p>Mọi chuyến đi đều kèm bảo hiểm thân vỏ.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

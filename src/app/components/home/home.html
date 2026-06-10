@@ -1,0 +1,376 @@
+<div class="home-page-wrapper">
+  <!-- Modern Header -->
+  <header class="site-header">
+    <div class="logo" routerLink="/">
+      <span class="logo-text">EV Rental</span>
+    </div>
+
+    <nav class="site-nav">
+      <a routerLink="/" class="active">Trang chủ</a>
+      <a routerLink="/vehicles">Thuê xe</a>
+      <a href="#stations">Bản đồ trạm sạc</a>
+    </nav>
+
+    <div class="header-actions">
+      <ng-container *ngIf="!isLoggedIn(); else userLoggedIn">
+        <a routerLink="/login" class="btn-login">Đăng nhập</a>
+      </ng-container>
+      <ng-template #userLoggedIn>
+        <a *ngIf="isAdmin()" routerLink="/admin" class="btn-login admin-btn">Quản trị</a>
+        <a routerLink="/profile" class="user-avatar-btn" title="Tài khoản của tôi">
+          <img *ngIf="userAvatar" [src]="userAvatar" alt="Avatar" class="avatar-img" />
+          <span *ngIf="!userAvatar">{{ userInitials }}</span>
+        </a>
+      </ng-template>
+    </div>
+  </header>
+
+  <!-- Cinematic Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <!-- <span class="pill">NỀN TẢNG THUÊ XE ĐIỆN #1 VIỆT NAM</span> -->
+      <h1>
+        Trải nghiệm di chuyển<br/>
+        xanh, <span class="accent">không rào cản<span class="sparkle">✨</span></span>
+      </h1>
+      <p>
+        Đặt xe điện trực tuyến dễ dàng, nhanh chóng. Hỗ trợ giao xe tận nhà, kiểm tra chất lượng trước khi nhận. Đóng góp cho hành trình giảm thiểu khí thải CO₂.
+      </p>
+
+      <div class="hero-actions">
+        <a routerLink="/vehicles" class="btn-solid primary glow">Thuê xe ngay</a>
+        <a href="#catalog" class="btn-outline white">Khám phá mẫu xe</a>
+      </div>
+
+      <div class="hero-metrics">
+        <div>
+          <strong>50+</strong>
+          <span>Xe điện có sẵn</span>
+        </div>
+        <div>
+          <strong>5</strong>
+          <span>Tỉnh thành</span>
+        </div>
+        <div>
+          <strong>0đ</strong>
+          <span>Đặt cọc online</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-image-mask">
+        <img src="https://images.topgear.com.ph/topgear/images/2023/06/15/2-1686808703.jpg" alt="VinFast VF3" class="hero-car-img" />
+        <div class="glow-ring"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="quick-actions">
+    <article class="benefit-card">
+      <div class="icon-badge">🌿</div>
+      <div class="benefit-content">
+        <h3>Thân thiện môi trường</h3>
+        <p>100% phương tiện vận hành bằng năng lượng điện, giảm phát thải carbon.</p>
+      </div>
+    </article>
+    <article class="benefit-card active">
+      <div class="icon-badge">🔌</div>
+      <div class="benefit-content">
+        <h3>Hạ tầng sạc phủ rộng</h3>
+        <p>Tự do di chuyển với bản đồ trạm sạc nhanh VinFast và các bên thứ ba.</p>
+      </div>
+    </article>
+    <article class="benefit-card">
+      <div class="icon-badge">🛡️</div>
+      <div class="benefit-content">
+        <h3>An tâm tuyệt đối</h3>
+        <p>Mọi phương tiện đều được mua bảo hiểm thân vỏ và bảo dưỡng định kỳ.</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- Featured Section -->
+  <section id="catalog" class="featured">
+    <div class="section-header">
+      <div>
+        <span class="pill ghost">Khám phá</span>
+        <h2>Bộ sưu tập xe nổi bật</h2>
+      </div>
+      <div class="section-actions-row">
+        <!-- <button class="btn-compact btn-admin-add" (click)="openAddModal()">+ Thêm xe mới</button> -->
+        <a routerLink="/vehicles" class="section-link">Xem tất cả xe →</a>
+      </div>
+    </div>
+
+    <div class="car-grid">
+      <article class="car-card" *ngFor="let car of paginatedFeaturedCars" [class.is-booked]="car.status === 'booked'" [routerLink]="['/vehicles', car.id]">
+        <div class="car-visual-wrapper">
+          <img *ngIf="car.imageUrl" [src]="getFirstImage(car.imageUrl)" [alt]="car.name" class="car-img" />
+          <div *ngIf="!car.imageUrl" class="car-placeholder">🚗</div>
+          <span class="status-badge" [class.booked]="car.status === 'booked'">{{ car.statusLabel }}</span>
+        </div>
+        <div class="car-body">
+          <div class="title-row">
+            <h3>{{ car.name }}</h3>
+            <span class="brand-badge">{{ car.brand }}</span>
+          </div>
+          <p class="car-meta">{{ car.year }} · Loại sạc {{ car.chargeType }}</p>
+          <div class="car-specs">
+            <span>🔋 {{ car.batteryKwh }} kWh</span>
+            <span>⚡ {{ car.rangeKm }} km</span>
+          </div>
+          <div class="car-footer">
+            <div class="price-box">
+              <span class="price-val">{{ car.pricePerDay }}</span>
+            </div>
+            <button class="btn-rent-compact" [disabled]="car.status === 'booked'">
+              {{ car.status === 'booked' ? 'Đã đặt' : 'Thuê ngay' }}
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Catalog Footer (Pagination + View All) -->
+    <div class="catalog-footer">
+      <div class="pagination-controls" *ngIf="totalPages > 1">
+        <button class="btn-page" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">&laquo;</button>
+        <button class="btn-page" *ngFor="let page of pages" [class.active]="page === currentPage" (click)="changePage(page)">
+          {{ page }}
+        </button>
+        <button class="btn-page" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">&raquo;</button>
+      </div>
+      
+      <div class="view-all-prompt">
+        <p>Bạn muốn tham khảo thêm các mẫu xe khác kĩ hơn?</p>
+        <a routerLink="/vehicles" class="btn-solid glow" style="display: inline-flex; justify-content: center; align-items: center;">Xem tất cả xe ➔</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Charging Stations Map Mock -->
+  <section id="stations" class="map-section">
+    <div class="section-header centered">
+      <span class="pill ghost">Hạ tầng</span>
+      <h2>Bản đồ trạm sạc gần bạn</h2>
+      <p>Tìm trạm sạc VinFast, EVN hoặc các đơn vị tư nhân dễ dàng trong tầm tay.</p>
+    </div>
+
+    <div class="map-panel">
+      <div class="map-placeholder-bg">
+        <div class="map-marker marker-a">⚡</div>
+        <div class="map-marker marker-b">⚡</div>
+        <div class="map-marker marker-c">⚡</div>
+      </div>
+      <div class="map-legend">
+        <span><i class="dot green"></i> AC (Sạc chậm)</span>
+        <span><i class="dot blue"></i> DC (Sạc nhanh)</span>
+        <span><i class="dot red"></i> FastCharge (Siêu nhanh)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Customer Reviews Section -->
+  <section class="reviews-section">
+    <div class="section-header centered">
+      <span class="pill ghost">Đánh giá</span>
+      <h2>Khách hàng nói gì về EV Rental</h2>
+      <p>Hành trình di chuyển thông minh được hàng trăm khách hàng chia sẻ.</p>
+    </div>
+
+    <div class="reviews-grid">
+      <article class="review-card">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">"Tôi rất bất ngờ vì sự tiện lợi. Không cần tải app hay đăng ký tài khoản phức tạp, chỉ cần điền SĐT và email là có người gọi xác nhận ngay. Xe giao tận nhà rất sạch sẽ."</p>
+        <div class="reviewer-info">
+          <strong>Trần Văn Nam</strong>
+          <span>Khách thuê VF8 tại Hà Nội</span>
+        </div>
+      </article>
+
+      <article class="review-card">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">"Trải nghiệm đi du lịch bằng Model 3 Standard thật tuyệt vời. Dịch vụ chăm sóc khách hàng của EV Rental rất tận tâm, hỗ trợ chỉ đường trạm sạc liên tục. Sẽ quay lại nhiều lần!"</p>
+        <div class="reviewer-info">
+          <strong>Lê Minh Trang</strong>
+          <span>Khách thuê Tesla tại TP.HCM</span>
+        </div>
+      </article>
+
+      <article class="review-card">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">"Giá cả minh bạch, không phát sinh chi phí ẩn. Thủ tục giao nhận xe nhanh chóng chỉ mất 5 phút. Xe chạy cực êm và đầy pin khi nhận."</p>
+        <div class="reviewer-info">
+          <strong>Phạm Hoàng Hải</strong>
+          <span>Khách thuê BYD Atto 3 tại Đà Nẵng</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Co-operate Banner -->
+  <section class="cta-bar">
+    <div>
+      <h3>Bạn có xe điện muốn cho thuê kiếm thêm thu nhập?</h3>
+      <p>Trở thành đối tác của EV Rental để tối ưu hóa nguồn thu nhập thụ động.</p>
+    </div>
+    <a class="btn-solid" href="#">Đăng ký hợp tác →</a>
+  </section>
+
+  <!-- Modern Footer -->
+  <footer id="footer" class="site-footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <span class="logo-mark">EV</span>
+        <span class="logo-text">Rental</span>
+        <p>Tiên phong dịch vụ cho thuê xe điện công nghệ hàng đầu Việt Nam.</p>
+      </div>
+      <div class="footer-links">
+        <a href="#about">Về chúng tôi</a>
+        <a href="#">Liên hệ</a>
+        <a href="#">Hợp tác</a>
+        <a href="#">FAQ</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 EV Rental Platform. Mọi quyền được bảo lưu.</p>
+    </div>
+  </footer>
+
+  <!-- Modal Thêm xe mới -->
+  <div class="modal-backdrop" *ngIf="showAddModal" (click)="closeAddModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Thêm phương tiện mới</h3>
+        <button class="btn-close" (click)="closeAddModal()">×</button>
+      </div>
+      <form (submit)="saveVehicle(); $event.preventDefault()" class="modal-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Tên xe *</label>
+            <input type="text" id="name" name="name" [(ngModel)]="newVehicle.name" required placeholder="Ví dụ: VinFast VF 3" />
+          </div>
+          <div class="form-group">
+            <label for="brand">Hãng xe *</label>
+            <input type="text" id="brand" name="brand" [(ngModel)]="newVehicle.brand" required placeholder="Ví dụ: VinFast" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="model">Mẫu xe / Phiên bản *</label>
+            <input type="text" id="model" name="model" [(ngModel)]="newVehicle.model" required placeholder="Ví dụ: Plus / Standard" />
+          </div>
+          <div class="form-group">
+            <label for="color">Màu sắc</label>
+            <input type="text" id="color" name="color" [(ngModel)]="newVehicle.color" placeholder="Ví dụ: Trắng, Đen, Xanh" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="year">Năm sản xuất</label>
+            <input type="number" id="year" name="year" [(ngModel)]="newVehicle.year" />
+          </div>
+          <div class="form-group">
+            <label for="batteryKwh">Dung lượng pin (kWh)</label>
+            <input type="number" step="0.1" id="batteryKwh" name="batteryKwh" [(ngModel)]="newVehicle.batteryKwh" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="rangeKm">Quãng đường di chuyển (km)</label>
+            <input type="number" id="rangeKm" name="rangeKm" [(ngModel)]="newVehicle.rangeKm" />
+          </div>
+          <div class="form-group">
+            <label for="chargeType">Loại sạc</label>
+            <input type="text" id="chargeType" name="chargeType" [(ngModel)]="newVehicle.chargeType" placeholder="Ví dụ: DC Fast / AC" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pricePerHour">Giá thuê/giờ (đ)</label>
+            <input type="number" id="pricePerHour" name="pricePerHour" [(ngModel)]="newVehicle.pricePerHour" />
+          </div>
+          <div class="form-group">
+            <label for="pricePerDay">Giá thuê/ngày (đ) *</label>
+            <input type="number" id="pricePerDay" name="pricePerDay" [(ngModel)]="newVehicle.pricePerDay" required />
+          </div>
+          <div class="form-group">
+            <label for="pricePerWeek">Giá thuê/tuần (đ)</label>
+            <input type="number" id="pricePerWeek" name="pricePerWeek" [(ngModel)]="newVehicle.pricePerWeek" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="location">Khu vực địa lý</label>
+            <input type="text" id="location" name="location" [(ngModel)]="newVehicle.location" placeholder="Ví dụ: Hà Nội" />
+          </div>
+          <div class="form-group">
+            <label for="status">Trạng thái xe</label>
+            <select id="status" name="status" [(ngModel)]="newVehicle.status">
+              <option value="AVAILABLE">Sẵn sàng (Available)</option>
+              <option value="RENTED">Đang thuê (Rented)</option>
+              <option value="MAINTENANCE">Bảo dưỡng (Maintenance)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group image-selection-group">
+          <label>Phương thức chọn ảnh xe:</label>
+          <div class="image-toggle-container">
+            <label class="toggle-option">
+              <input type="radio" name="imageInputType" [(ngModel)]="imageInputType" value="url" />
+              <span>Dùng URL ảnh có sẵn</span>
+            </label>
+            <label class="toggle-option">
+              <input type="radio" name="imageInputType" [(ngModel)]="imageInputType" value="file" />
+              <span>Tải ảnh lên từ thiết bị</span>
+            </label>
+          </div>
+
+          <!-- Nhập URL -->
+          <div class="image-input-box" *ngIf="imageInputType === 'url'">
+            <label for="imageUrlInput">URL hình ảnh:</label>
+            <input type="text" id="imageUrlInput" name="imageUrlInput" [(ngModel)]="imageUrlInput" placeholder="https://example.com/car.png" />
+          </div>
+
+          <!-- Tải file lên -->
+          <div class="image-input-box" *ngIf="imageInputType === 'file'">
+            <label for="fileUpload">Chọn file hình ảnh từ máy tính:</label>
+            <div class="file-upload-wrapper">
+              <input type="file" id="fileUpload" (change)="onFileSelected($event)" accept="image/*" class="file-input-hidden" />
+              <div class="file-upload-btn">
+                <span *ngIf="!uploadingImage && !imageUrlInput">📁 Nhấp để chọn file ảnh</span>
+                <span *ngIf="uploadingImage">⏳ Đang tải ảnh lên...</span>
+                <span *ngIf="!uploadingImage && imageUrlInput" class="success-text">✓ Tải lên thành công!</span>
+              </div>
+            </div>
+            <div class="error-text" *ngIf="uploadError">{{ uploadError }}</div>
+          </div>
+
+          <!-- Preview ảnh -->
+          <div class="image-preview-wrapper" *ngIf="imageUrlInput">
+            <p>Xem trước ảnh xe:</p>
+            <img [src]="getFirstImage(imageUrlInput)" alt="Preview ảnh xe" class="form-image-preview" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Mô tả chi tiết</label>
+          <textarea id="description" name="description" [(ngModel)]="newVehicle.description" rows="3" placeholder="Nhập mô tả về xe..."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-outline" (click)="closeAddModal()">Hủy</button>
+          <button type="submit" class="btn-solid" [disabled]="uploadingImage">Lưu thông tin</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

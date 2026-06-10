@@ -1,0 +1,295 @@
+<div class="dashboard-page">
+  <!-- Modern Header -->
+  <header class="site-header">
+    <div class="logo" routerLink="/">
+      <span class="logo-mark">EV</span>
+      <span class="logo-text">Rental</span>
+    </div>
+    <nav class="site-nav">
+      <a routerLink="/">Trang chủ</a>
+      <a routerLink="/vehicles">Thuê xe</a>
+      <a routerLink="/">Bản đồ trạm sạc</a>
+      <a routerLink="/profile" class="active">Quản lý chuyến đi</a>
+    </nav>
+    <div class="header-actions">
+      <a routerLink="/profile" class="user-avatar-btn" title="Tài khoản của tôi">
+        <img *ngIf="originalUser?.avatar" [src]="originalUser.avatar" alt="Avatar" class="avatar-img" />
+        <span *ngIf="!originalUser?.avatar">{{ userProfile.avatarText }}</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Container -->
+  <main class="dashboard-container">
+    <section class="dashboard-header-row">
+      <div>
+        <h1>Bảng điều khiển</h1>
+        <p>Theo dõi các chuyến đi và quản lý tài khoản thành viên của bạn.</p>
+      </div>
+    </section>
+
+    <!-- Metrics Row -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <span class="m-icon">🚗</span>
+        <div>
+          <span class="m-label">Tổng chuyến đi</span>
+          <strong class="m-val">{{ totalBookings }}</strong>
+        </div>
+      </div>
+      <div class="metric-card">
+        <span class="m-icon">💳</span>
+        <div>
+          <span class="m-label">Tổng chi tiêu</span>
+          <strong class="m-val">{{ totalSpent.toLocaleString() }}đ</strong>
+        </div>
+      </div>
+      <div class="metric-card green">
+        <span class="m-icon">🌱</span>
+        <div>
+          <span class="m-label">CO₂ giảm thiểu</span>
+          <strong class="m-val">{{ co2Saved.toFixed(1) }} kg</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Section Grid -->
+    <div class="dashboard-grid">
+      <!-- Profile Column -->
+      <aside class="profile-card">
+        <!-- Display Mode -->
+        <ng-container *ngIf="!isEditMode">
+          <button class="btn-edit-icon" (click)="toggleEditMode()">✏️ Sửa</button>
+          <div class="avatar-box">
+            <img *ngIf="originalUser?.avatar" [src]="originalUser.avatar" class="avatar-img" alt="Avatar">
+            <span *ngIf="!originalUser?.avatar" class="avatar-text">{{ userProfile.avatarText }}</span>
+          </div>
+          <h3>{{ userProfile.name }}</h3>
+          <span class="member-badge">{{ userProfile.status }}</span>
+
+          <div class="profile-details">
+            <div class="detail-row">
+              <span>Email</span>
+              <strong>{{ userProfile.email }}</strong>
+            </div>
+            <div class="detail-row">
+              <span>Số điện thoại</span>
+              <strong>{{ userProfile.phone }}</strong>
+            </div>
+            <div class="detail-row">
+              <span>Địa chỉ</span>
+              <strong>{{ userProfile.address }}</strong>
+            </div>
+            <div class="detail-row">
+              <span>Tham gia từ</span>
+              <strong>{{ userProfile.memberSince }}</strong>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Edit Mode -->
+        <ng-container *ngIf="isEditMode">
+          <h3 class="edit-title">Chỉnh sửa hồ sơ</h3>
+          <div class="avatar-edit-box">
+            <div class="avatar-preview">
+               <img *ngIf="editingUser.avatar" [src]="editingUser.avatar" class="avatar-img">
+               <span *ngIf="!editingUser.avatar" class="avatar-text">{{ userProfile.avatarText }}</span>
+            </div>
+            <label class="btn-upload">
+              Đổi ảnh
+              <input type="file" hidden accept="image/*" (change)="onFileSelected($event)">
+            </label>
+          </div>
+          
+          <form class="edit-profile-form" (ngSubmit)="saveProfile()">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Họ</label>
+                <input type="text" [(ngModel)]="editingUser.lastname" name="lastname" placeholder="Họ">
+              </div>
+              <div class="form-group">
+                <label>Tên</label>
+                <input type="text" [(ngModel)]="editingUser.firstname" name="firstname" placeholder="Tên">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Số điện thoại</label>
+              <input type="text" [(ngModel)]="editingUser.phone" name="phone" placeholder="Số điện thoại">
+            </div>
+            <div class="form-group">
+              <label>Địa chỉ</label>
+              <input type="text" [(ngModel)]="editingUser.address" name="address" placeholder="Địa chỉ">
+            </div>
+            
+            <div class="edit-actions">
+              <button type="button" class="btn-cancel" (click)="toggleEditMode()">Hủy</button>
+              <button type="submit" class="btn-save">Lưu thay đổi</button>
+            </div>
+          </form>
+        </ng-container>
+      </aside>
+
+      <!-- Rentals List Column -->
+      <section class="rentals-list-section">
+        <h2>Lịch sử đặt xe</h2>
+
+        <!-- Loading State -->
+        <div class="loading-state" *ngIf="loading">
+          <div class="spinner"></div>
+          <p>Đang tải danh sách đơn đặt xe...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="!loading && rentals.length === 0">
+          <div class="empty-icon">📅</div>
+          <h4>Bạn chưa có chuyến đi nào</h4>
+          <p>Tìm và thuê một chiếc xe điện xanh ngay hôm nay!</p>
+          <button class="btn-solid" routerLink="/vehicles">Khám phá danh sách xe</button>
+        </div>
+
+        <!-- Booking Cards -->
+        <div class="rentals-grid" *ngIf="!loading && rentals.length > 0">
+          <article class="rental-card" *ngFor="let item of rentals">
+            <div class="card-left">
+              <span class="rental-id">Đơn: EV-{{ item.id }}</span>
+              <h3>Biển số: {{ item.vehicleLicensePlate }}</h3>
+              
+              <div class="rental-meta-row">
+                <span>📅 <strong>Nhận:</strong> {{ item.rentalDate | date:'dd/MM/yyyy' }}</span>
+                <span>📅 <strong>Trả:</strong> {{ item.returnDate | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+
+            <div class="card-right">
+              <div class="price-box">
+                <span class="price-val">{{ (item.totalPrice || ((item.depositAmount || 0) + (item.remainingAmount || 0))).toLocaleString() }}đ</span>
+                <span class="status-badge" [class.pending]="item.rentalStatus === 'PENDING'" [class.active]="item.rentalStatus === 'ACTIVE'">
+                  {{ item.rentalStatus === 'PENDING' ? 'Chờ duyệt' : (item.rentalStatus === 'ACTIVE' ? 'Đang hoạt động' : item.rentalStatus) }}
+                </span>
+              </div>
+              <div class="action-buttons">
+                <button class="btn-action-outline view-detail" (click)="viewInvoice(item)">
+                  Xem hóa đơn
+                </button>
+                <button *ngIf="item.rentalStatus !== 'COMPLETED' && item.rentalStatus !== 'CANCELLED'" class="btn-action-outline cancel" (click)="cancelBooking(item.id)">
+                  Hủy yêu cầu
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Invoice Modal -->
+  <div class="modal-backdrop" *ngIf="showInvoiceModal" (click)="closeInvoice()">
+    <div class="invoice-modal" (click)="$event.stopPropagation()">
+      <button class="btn-close-modal" (click)="closeInvoice()">×</button>
+      
+      <div class="invoice-container">
+        <!-- Invoice Header -->
+        <header class="invoice-header">
+          <div class="inv-brand">
+            <span class="logo-mark">EV</span>
+            <span class="logo-text">Hóa đơn thuê xe</span>
+          </div>
+          <div class="inv-meta">
+            <span class="inv-number">Mã đơn: #EV-{{ selectedRental?.id }}</span>
+            <span class="inv-date">Nhận xe: {{ selectedRental?.rentalDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </header>
+
+        <!-- Invoice Status Banner -->
+        <div class="invoice-status-banner" [class.pending]="selectedRental?.rentalStatus === 'PENDING'" [class.active]="selectedRental?.rentalStatus === 'ACTIVE'">
+          Trạng thái đơn: <strong>{{ selectedRental?.rentalStatus === 'PENDING' ? 'CHỜ DUYỆT' : selectedRental?.rentalStatus }}</strong>
+        </div>
+
+        <!-- Two Columns Info -->
+        <div class="invoice-grid">
+          <!-- Left Column: Customer & Rental details -->
+          <div class="inv-col">
+            <h4>Thông tin khách hàng</h4>
+            <table class="inv-table">
+              <tr>
+                <td>Khách hàng:</td>
+                <td><strong>{{ selectedRental?.customerName }}</strong></td>
+              </tr>
+              <tr>
+                <td>Số điện thoại:</td>
+                <td><strong>{{ selectedRental?.customerPhone }}</strong></td>
+              </tr>
+              <tr>
+                <td>Địa chỉ nhận xe:</td>
+                <td><strong>{{ parseAddressDetails(selectedRental?.customerAddress || '').address }}</strong></td>
+              </tr>
+              <tr>
+                <td>Ghi chú:</td>
+                <td><strong>{{ parseAddressDetails(selectedRental?.customerAddress || '').notes }}</strong></td>
+              </tr>
+            </table>
+
+            <h4 style="margin-top: 24px;">Thời gian đặt xe</h4>
+            <table class="inv-table">
+              <tr>
+                <td>Ngày nhận xe:</td>
+                <td><strong>{{ selectedRental?.rentalDate | date:'dd/MM/yyyy' }}</strong></td>
+              </tr>
+              <tr>
+                <td>Ngày trả xe:</td>
+                <td><strong>{{ selectedRental?.returnDate | date:'dd/MM/yyyy' }}</strong></td>
+              </tr>
+              <tr>
+                <td>Biển số đăng ký:</td>
+                <td><strong class="license-plate">{{ selectedRental?.vehicleLicensePlate }}</strong></td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Right Column: Vehicle preview & Payment info -->
+          <div class="inv-col">
+            <h4>Thông tin phương tiện</h4>
+            
+            <div class="inv-vehicle-card" *ngIf="selectedVehicle">
+              <img [src]="getFirstImage(selectedVehicle.imageUrl)" alt="Vehicle Image" class="inv-vehicle-img">
+              <div class="inv-vehicle-info">
+                <h5>{{ selectedVehicle.brand }} {{ selectedVehicle.name }}</h5>
+                <span>Màu: {{ selectedVehicle.color }} | Range: {{ selectedVehicle.rangeKm }}km</span>
+              </div>
+            </div>
+            
+            <div class="loading-vehicle" *ngIf="loadingInvoiceVehicle">
+              <div class="spinner-small"></div>
+              <span>Đang tải thông tin xe...</span>
+            </div>
+
+            <h4 style="margin-top: 24px;">Chi tiết thanh toán</h4>
+            <table class="inv-table payment-table">
+              <tr>
+                <td>Hình thức:</td>
+                <td><strong>{{ parseAddressDetails(selectedRental?.customerAddress || '').payment }}</strong></td>
+              </tr>
+              <tr>
+                <td>Số tiền đã cọc:</td>
+                <td><strong>{{ selectedRental?.depositAmount?.toLocaleString() || '0' }}đ</strong></td>
+              </tr>
+              <tr>
+                <td>Còn lại cần thanh toán:</td>
+                <td><strong>{{ (selectedRental?.rentalStatus === 'COMPLETED' ? 0 : (selectedRental?.remainingAmount || 0)).toLocaleString() }}đ</strong></td>
+              </tr>
+              <tr class="total-row">
+                <td>Tổng tiền thuê xe:</td>
+                <td class="total-price">{{ (selectedRental?.totalPrice || ((selectedRental?.depositAmount || 0) + (selectedRental?.remainingAmount || 0))).toLocaleString() }}đ</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <footer class="invoice-footer">
+          <p>Cảm ơn bạn đã lựa chọn dịch vụ thuê xe điện của EV Rental!</p>
+          <button class="btn-solid print-btn" (click)="windowPrint()">In hóa đơn</button>
+        </footer>
+      </div>
+    </div>
+  </div>
+</div>

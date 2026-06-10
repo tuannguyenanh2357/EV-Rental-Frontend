@@ -1,0 +1,355 @@
+<div class="admin-layout" [class.admin-dark-mode]="isDarkMode">
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span class="logo-mark">EV</span>
+      <span class="logo-text">Rental Admin</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item" [class.active]="activeTab === 'dashboard'" (click)="selectTab('dashboard')">
+        <span class="nav-icon">📊</span><span>Bảng điều khiển</span>
+      </button>
+      <button class="nav-item" [class.active]="activeTab === 'vehicles'" (click)="selectTab('vehicles')">
+        <span class="nav-icon">🚗</span><span>Quản lý phương tiện</span>
+      </button>
+      <button class="nav-item" [class.active]="activeTab === 'rentals'" (click)="selectTab('rentals')">
+        <span class="nav-icon">📋</span><span>Đơn đặt xe</span>
+      </button>
+      <button class="nav-item" [class.active]="activeTab === 'users'" (click)="selectTab('users')">
+        <span class="nav-icon">👥</span><span>Người dùng</span>
+      </button>
+      <button class="nav-item" [class.active]="activeTab === 'partnerships'" (click)="selectTab('partnerships')">
+        <span class="nav-icon">🤝</span><span>Hợp tác ký gửi</span>
+      </button>
+      <button class="nav-item" [class.active]="activeTab === 'notifications'" (click)="selectTab('notifications')">
+        <span class="nav-icon">🔔</span><span>Thông báo</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="admin-avatar">AD</div>
+      <div class="admin-info">
+        <span class="admin-name">Admin Tuan</span>
+        <span class="admin-role">Quản trị viên</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+    <header class="top-navbar">
+      <div class="search-bar-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" placeholder="Tìm kiếm nhanh..." />
+      </div>
+      <div class="top-nav-actions">
+        <button class="theme-toggle-btn" (click)="toggleDarkMode()" title="Chuyển chế độ sáng/tối">
+          <span>{{ isDarkMode ? '☀️' : '🌙' }}</span>
+        </button>
+        <button class="notification-trigger" (click)="selectTab('notifications')" title="Thông báo hệ thống">
+          <span>🔔</span>
+          <span class="badge-counter" *ngIf="state.unreadNotificationsCount() > 0">{{ state.unreadNotificationsCount() }}</span>
+        </button>
+        <button class="btn-outline" (click)="loadAllData()" title="Làm mới dữ liệu">🔄 Đồng bộ</button>
+      </div>
+    </header>
+
+    <main class="content-container">
+      <!-- Loading -->
+      <div class="empty-state-wrapper" *ngIf="isLoading" style="min-height: 400px;">
+        <div class="empty-state-icon">⏳</div>
+        <div class="empty-state-title">Đang đồng bộ dữ liệu...</div>
+        <p class="empty-state-desc">Đang truy xuất thông tin mới nhất từ máy chủ Backend.</p>
+        <div style="width: 200px; margin-top: 10px;"><div class="skeleton-line"></div></div>
+      </div>
+
+      <!-- Tab Components -->
+      <ng-container *ngIf="!isLoading">
+        <app-dashboard-tab *ngIf="activeTab === 'dashboard'"
+          (tabChange)="selectTab($event)"
+          (vehicleClick)="openVehicleDrawer($event)">
+        </app-dashboard-tab>
+
+        <app-vehicles-tab *ngIf="activeTab === 'vehicles'"
+          (addVehicle)="openAddModal()"
+          (viewVehicle)="openVehicleDrawer($event)"
+          (editVehicle)="openEditDrawer($event)"
+          (deleteVehicle)="openDeleteConfirm($event)">
+        </app-vehicles-tab>
+
+        <app-rentals-tab *ngIf="activeTab === 'rentals'"
+          (viewRental)="openRentalDrawer($event)"
+          (updateStatus)="updateRentalStatus($event.id, $event.status)">
+        </app-rentals-tab>
+
+        <app-users-tab *ngIf="activeTab === 'users'"
+          (viewUser)="openUserDrawer($event)"
+          (toggleLock)="toggleUserLock($event)">
+        </app-users-tab>
+
+        <app-partnerships-tab *ngIf="activeTab === 'partnerships'">
+        </app-partnerships-tab>
+
+        <app-notifications-tab *ngIf="activeTab === 'notifications'">
+        </app-notifications-tab>
+      </ng-container>
+    </main>
+  </div>
+
+  <!-- ==================== MODALS & DRAWER OVERLAYS ==================== -->
+
+  <!-- ADD VEHICLE MODAL -->
+  <div class="modal-backdrop" *ngIf="showAddModal" (click)="closeAddModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Thêm phương tiện mới</h3>
+        <button class="btn-close" (click)="closeAddModal()">×</button>
+      </div>
+      <form (submit)="saveVehicle(); $event.preventDefault()" class="modal-form">
+        <div class="form-row">
+          <div class="form-group"><label>Tên xe *</label><input type="text" name="name" [(ngModel)]="newVehicle.name" required placeholder="Ví dụ: VinFast VF 3" /></div>
+          <div class="form-group"><label>Hãng xe *</label><input type="text" name="brand" [(ngModel)]="newVehicle.brand" required placeholder="Ví dụ: VinFast" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Phiên bản / Mẫu *</label><input type="text" name="model" [(ngModel)]="newVehicle.model" required placeholder="Ví dụ: Plus / Standard" /></div>
+          <div class="form-group"><label>Màu sắc</label><input type="text" name="color" [(ngModel)]="newVehicle.color" placeholder="Ví dụ: Trắng, Đen, Xanh" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Năm sản xuất</label><input type="number" name="year" [(ngModel)]="newVehicle.year" /></div>
+          <div class="form-group"><label>Biển số xe *</label><input type="text" name="licensePlate" [(ngModel)]="newVehicle.licensePlate" required placeholder="Ví dụ: 29A-123.45" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Dung lượng pin (kWh)</label><input type="number" name="batteryKwh" [(ngModel)]="newVehicle.batteryKwh" /></div>
+          <div class="form-group"><label>Quãng đường đi (km)</label><input type="number" name="rangeKm" [(ngModel)]="newVehicle.rangeKm" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Giá thuê/ngày (đ) *</label><input type="number" name="pricePerDay" [(ngModel)]="newVehicle.pricePerDay" required /></div>
+          <div class="form-group"><label>Loại sạc</label><input type="text" name="chargeType" [(ngModel)]="newVehicle.chargeType" /></div>
+        </div>
+        <div class="form-group">
+          <label>Chọn hình ảnh xe:</label>
+          <div style="display: flex; gap: 16px; margin-bottom: 8px;">
+            <label><input type="radio" name="imageInputType" [(ngModel)]="imageInputType" value="url" /> Nhập URL</label>
+            <label><input type="radio" name="imageInputType" [(ngModel)]="imageInputType" value="file" /> Tải lên từ máy</label>
+          </div>
+          <input *ngIf="imageInputType === 'url'" type="text" name="imageUrlInput" [(ngModel)]="imageUrlInput" placeholder="Ví dụ: https://link1.png, https://link2.png" style="width: 100%;" />
+          <div *ngIf="imageInputType === 'file'">
+            <input type="file" (change)="onFileSelected($event)" accept="image/*" multiple />
+            <div *ngIf="uploadingImage" style="font-size: 0.8rem; color: var(--admin-text-muted); margin-top: 4px;">Đang tải lên...</div>
+            <div *ngIf="uploadError" style="font-size: 0.8rem; color: #ef4444; margin-top: 4px;">{{ uploadError }}</div>
+            <div *ngIf="imageUrlInput && imageInputType === 'file'" style="font-size: 0.8rem; color: #10b981; margin-top: 4px;">Đã tải: {{ imageUrlInput }}</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Mô tả phương tiện</label>
+          <textarea name="description" [(ngModel)]="newVehicle.description" rows="3" placeholder="Thông tin chi tiết về dòng xe..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" (click)="closeAddModal()">Hủy</button>
+          <button type="submit" class="btn-primary" [disabled]="uploadingImage">Lưu thông tin</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT VEHICLE DRAWER -->
+  <div class="drawer-backdrop" *ngIf="showEditDrawer" (click)="closeEditDrawer()"></div>
+  <div class="drawer-panel" *ngIf="showEditDrawer">
+    <div class="drawer-header">
+      <h3>Chỉnh sửa phương tiện</h3>
+      <button class="btn-close" (click)="closeEditDrawer()">×</button>
+    </div>
+    <div class="drawer-body">
+      <div class="form-group"><label>Tên xe</label><input type="text" [(ngModel)]="editVehicleData.name" /></div>
+      <div class="form-group"><label>Hãng xe</label><input type="text" [(ngModel)]="editVehicleData.brand" /></div>
+      <div class="form-group"><label>Biển số</label><input type="text" [(ngModel)]="editVehicleData.licensePlate" /></div>
+      <div class="form-group"><label>Giá thuê/ngày (VNĐ)</label><input type="number" [(ngModel)]="editVehicleData.pricePerDay" /></div>
+      <div class="form-group">
+        <label>Trạng thái</label>
+        <select [(ngModel)]="editVehicleData.status">
+          <option value="AVAILABLE">Có sẵn (Available)</option>
+          <option value="RENTED">Đang thuê (Rented)</option>
+          <option value="MAINTENANCE">Bảo dưỡng (Maintenance)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Hình ảnh hiện tại</label>
+        <div class="edit-images-list" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; margin-top: 4px;">
+          <div *ngFor="let url of getVehicleImages(editVehicleData.imageUrl); let idx = index" style="position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid var(--admin-border-color);">
+            <img [src]="url" style="width: 100%; height: 100%; object-fit: cover;" />
+            <button type="button" (click)="removeEditImage(idx)" style="position: absolute; top: 4px; right: 4px; background: rgba(239,68,68,0.9); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer;">×</button>
+          </div>
+          <div *ngIf="!editVehicleData.imageUrl" style="font-size: 0.85rem; color: var(--admin-text-muted);">Chưa có hình ảnh nào.</div>
+        </div>
+        <label>Thêm ảnh mới</label>
+        <div style="display: flex; gap: 16px; margin-bottom: 8px; margin-top: 4px;">
+          <label style="font-size: 0.85rem;"><input type="radio" name="editImageInputType" [(ngModel)]="editImageInputType" value="url" /> Nhập URL</label>
+          <label style="font-size: 0.85rem;"><input type="radio" name="editImageInputType" [(ngModel)]="editImageInputType" value="file" /> Tải lên từ máy</label>
+        </div>
+        <div *ngIf="editImageInputType === 'url'" style="display: flex; gap: 8px;">
+          <input type="text" [(ngModel)]="editImageUrlToAdd" placeholder="Ví dụ: https://link.png" style="flex: 1;" />
+          <button type="button" class="btn-primary" (click)="addEditImageUrl()" style="padding: 0 16px; height: 38px;">Thêm</button>
+        </div>
+        <div *ngIf="editImageInputType === 'file'">
+          <input type="file" (change)="onEditFileSelected($event)" accept="image/*" multiple />
+          <div *ngIf="editUploadingImage" style="font-size: 0.8rem; color: var(--admin-text-muted); margin-top: 4px;">Đang tải lên...</div>
+          <div *ngIf="editUploadError" style="font-size: 0.8rem; color: #ef4444; margin-top: 4px;">{{ editUploadError }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="drawer-footer">
+      <button class="btn-outline" (click)="closeEditDrawer()" style="flex: 1;">Hủy</button>
+      <button class="btn-primary" (click)="updateVehicle()" style="flex: 1; justify-content: center;">Lưu thay đổi</button>
+    </div>
+  </div>
+
+  <!-- VEHICLE DETAILS DRAWER -->
+  <div class="drawer-backdrop" *ngIf="showVehicleDrawer" (click)="closeVehicleDrawer()"></div>
+  <div class="drawer-panel" *ngIf="showVehicleDrawer">
+    <div class="drawer-header">
+      <h3>Chi tiết phương tiện</h3>
+      <button class="btn-close" (click)="closeVehicleDrawer()">×</button>
+    </div>
+    <div class="drawer-body" *ngIf="selectedVehicle">
+      <img [src]="getFirstImage(selectedVehicle.imageUrl)" style="width: 100%; border-radius: 8px; max-height: 180px; object-fit: cover; background-color: var(--admin-bg-hover);" />
+      <div class="drawer-section">
+        <span class="drawer-section-title">Thông tin cơ bản</span>
+        <div class="detail-grid">
+          <div class="detail-item"><span class="detail-label">Tên dòng xe</span><span class="detail-value">{{ selectedVehicle.name }}</span></div>
+          <div class="detail-item"><span class="detail-label">Hãng sản xuất</span><span class="detail-value">{{ selectedVehicle.brand }}</span></div>
+          <div class="detail-item"><span class="detail-label">Phiên bản</span><span class="detail-value">{{ selectedVehicle.model }}</span></div>
+          <div class="detail-item"><span class="detail-label">Năm sản xuất</span><span class="detail-value">{{ selectedVehicle.year }}</span></div>
+          <div class="detail-item"><span class="detail-label">Màu sắc</span><span class="detail-value">{{ selectedVehicle.color || 'Không xác định' }}</span></div>
+          <div class="detail-item"><span class="detail-label">Biển kiểm soát</span><span class="detail-value">{{ selectedVehicle.licensePlate || 'Chưa cập nhật' }}</span></div>
+        </div>
+      </div>
+      <div class="drawer-section">
+        <span class="drawer-section-title">Thông số kỹ thuật</span>
+        <div class="detail-grid">
+          <div class="detail-item"><span class="detail-label">Dung lượng pin</span><span class="detail-value">{{ selectedVehicle.batteryKwh }} kWh</span></div>
+          <div class="detail-item"><span class="detail-label">Quãng đường di chuyển</span><span class="detail-value">{{ selectedVehicle.rangeKm }} km</span></div>
+          <div class="detail-item"><span class="detail-label">Chuẩn sạc hỗ trợ</span><span class="detail-value">{{ selectedVehicle.chargeType }}</span></div>
+          <div class="detail-item">
+            <span class="detail-label">Trạng thái xe</span>
+            <span class="status-badge" [class.available]="selectedVehicle.status === 'AVAILABLE'" [class.rented]="selectedVehicle.status === 'RENTED'" [class.maintenance]="selectedVehicle.status === 'MAINTENANCE'" style="width: max-content;">
+              {{ selectedVehicle.status === 'AVAILABLE' ? 'Có sẵn' : selectedVehicle.status === 'RENTED' ? 'Đang thuê' : 'Bảo dưỡng' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="drawer-section">
+        <span class="drawer-section-title">Bảng giá cho thuê</span>
+        <div class="detail-grid">
+          <div class="detail-item"><span class="detail-label">Giá theo giờ</span><span class="detail-value">{{ (selectedVehicle.pricePerHour || 0).toLocaleString() }}đ/giờ</span></div>
+          <div class="detail-item"><span class="detail-label">Giá theo ngày</span><span class="detail-value">{{ (selectedVehicle.pricePerDay || 0).toLocaleString() }}đ/ngày</span></div>
+        </div>
+      </div>
+      <div class="drawer-section" *ngIf="selectedVehicle.description">
+        <span class="drawer-section-title">Mô tả</span>
+        <p style="font-size: 0.9rem; color: var(--admin-text-secondary); margin: 0; line-height: 1.5;">{{ selectedVehicle.description }}</p>
+      </div>
+    </div>
+    <div class="drawer-footer">
+      <button class="btn-outline" (click)="closeVehicleDrawer()" style="width: 100%;">Đóng cửa sổ</button>
+    </div>
+  </div>
+
+  <!-- RENTAL DETAILS DRAWER -->
+  <div class="drawer-backdrop" *ngIf="showRentalDrawer" (click)="closeRentalDrawer()"></div>
+  <div class="drawer-panel" *ngIf="showRentalDrawer">
+    <div class="drawer-header">
+      <h3>Chi tiết đơn đặt xe</h3>
+      <button class="btn-close" (click)="closeRentalDrawer()">×</button>
+    </div>
+    <div class="drawer-body" *ngIf="selectedRental">
+      <div class="drawer-section">
+        <span class="drawer-section-title">Thông tin khách thuê</span>
+        <div class="detail-grid">
+          <div class="detail-item"><span class="detail-label">Họ và tên</span><span class="detail-value">{{ selectedRental.customerName }}</span></div>
+          <div class="detail-item"><span class="detail-label">Số điện thoại</span><span class="detail-value">{{ selectedRental.customerPhone }}</span></div>
+          <div class="detail-item" style="grid-column: span 2;"><span class="detail-label">Địa chỉ nhận xe</span><span class="detail-value">{{ selectedRental.customerAddress || 'Giao nhận tại trạm xe' }}</span></div>
+        </div>
+      </div>
+      <div class="drawer-section">
+        <span class="drawer-section-title">Lịch trình & Chi phí</span>
+        <div class="detail-grid">
+          <div class="detail-item"><span class="detail-label">Ngày nhận xe</span><span class="detail-value">{{ selectedRental.rentalDate | date:'dd/MM/yyyy' }}</span></div>
+          <div class="detail-item"><span class="detail-label">Ngày hoàn trả</span><span class="detail-value">{{ selectedRental.returnDate | date:'dd/MM/yyyy' }}</span></div>
+          <div class="detail-item"><span class="detail-label">Biển số xe</span><span class="detail-value">{{ selectedRental.vehicleLicensePlate }}</span></div>
+          <div class="detail-item"><span class="detail-label">Đã đặt cọc</span><span class="detail-value">{{ (selectedRental.depositAmount || 0).toLocaleString() }}đ</span></div>
+          <div class="detail-item"><span class="detail-label">Còn lại</span><span class="detail-value">{{ (selectedRental.remainingAmount || 0).toLocaleString() }}đ</span></div>
+          <div class="detail-item"><span class="detail-label">Tổng chi phí</span><span class="detail-value" style="font-weight: 700; color: var(--admin-primary);">{{ (selectedRental.totalPrice || 0).toLocaleString() }}đ</span></div>
+        </div>
+      </div>
+      <div class="drawer-section" *ngIf="selectedRental.notes">
+        <span class="drawer-section-title">Ghi chú từ khách hàng</span>
+        <p style="font-size: 0.9rem; color: var(--admin-text-secondary); margin: 0; background-color: var(--admin-bg-base); padding: 10px; border-radius: 6px; border: 1px dashed var(--admin-border-color);">"{{ selectedRental.notes }}"</p>
+      </div>
+    </div>
+    <div class="drawer-footer">
+      <button class="btn-outline" (click)="closeRentalDrawer()" style="flex: 1;">Đóng</button>
+    </div>
+  </div>
+
+  <!-- USER DETAILS DRAWER -->
+  <div class="drawer-backdrop" *ngIf="showUserDrawer" (click)="closeUserDrawer()"></div>
+  <div class="drawer-panel" *ngIf="showUserDrawer">
+    <div class="drawer-header">
+      <h3>Hồ sơ người dùng</h3>
+      <button class="btn-close" (click)="closeUserDrawer()">×</button>
+    </div>
+    <div class="drawer-body" *ngIf="selectedUser">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 8px;">
+        <div style="width: 72px; height: 72px; border-radius: 50%; background-color: var(--admin-primary-light); color: var(--admin-primary); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700;">
+          {{ selectedUser.username.substring(0, 2).toUpperCase() }}
+        </div>
+        <h3 style="margin: 0;">{{ selectedUser.firstname }} {{ selectedUser.lastname }}</h3>
+        <span class="status-badge" [class.available]="selectedUser.role === 'ADMIN'" [class.rented]="selectedUser.role !== 'ADMIN'">
+          {{ selectedUser.role === 'ADMIN' ? 'Quản trị hệ thống' : 'Thành viên' }}
+        </span>
+      </div>
+      <div class="drawer-section">
+        <span class="drawer-section-title">Thông tin tài khoản</span>
+        <div class="detail-grid">
+          <div class="detail-item"><span class="detail-label">Tên đăng nhập</span><span class="detail-value">{{ selectedUser.username }}</span></div>
+          <div class="detail-item"><span class="detail-label">Email</span><span class="detail-value">{{ selectedUser.email || 'Chưa đăng ký' }}</span></div>
+          <div class="detail-item"><span class="detail-label">Độ tuổi</span><span class="detail-value">{{ selectedUser.age || 'N/A' }}</span></div>
+          <div class="detail-item">
+            <span class="detail-label">Trạng thái</span>
+            <span class="status-badge" [class.available]="!selectedUser.locked" [class.cancelled]="selectedUser.locked" style="width: max-content;">
+              {{ selectedUser.locked ? 'Bị khoá' : 'Hoạt động bình thường' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="drawer-footer">
+      <button class="btn-outline" (click)="toggleUserLock(selectedUser)" style="flex: 1;" [style.color]="selectedUser?.locked ? '#10b981' : '#ef4444'" [style.border-color]="selectedUser?.locked ? '#a7f3d0' : '#fca5a5'">
+        {{ selectedUser?.locked ? '🔓 Mở khoá tài khoản' : '🔒 Khoá tài khoản' }}
+      </button>
+      <button class="btn-outline" (click)="closeUserDrawer()" style="flex: 1;">Đóng</button>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRMATION MODAL -->
+  <div class="modal-backdrop" *ngIf="showDeleteConfirmModal" (click)="closeDeleteConfirm()">
+    <div class="modal-container" style="max-width: 420px; text-align: center; padding: 32px 24px;" (click)="$event.stopPropagation()">
+      <div style="font-size: 3rem; margin-bottom: 16px;">⚠️</div>
+      <h3 style="margin: 0 0 8px 0; font-size: 1.3rem; font-weight: 600;">Xác nhận xóa</h3>
+      <p style="font-size: 0.95rem; color: var(--admin-text-secondary); margin: 0 0 24px 0; line-height: 1.5;">
+        Bạn có chắc chắn muốn xóa phương tiện <strong>{{ vehicleNameToDelete }}</strong> không? Hành động này không thể hoàn tác.
+      </p>
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn-outline" style="flex: 1;" (click)="closeDeleteConfirm()">Hủy bỏ</button>
+        <button class="btn-primary" style="flex: 1; justify-content: center; background-color: #ef4444;" (click)="confirmDeleteVehicle()">Đồng ý xóa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST MESSAGES -->
+  <div class="toast-container">
+    <div class="toast-message" *ngFor="let t of state.toasts()" [class.success]="t.type === 'success'" [class.error]="t.type === 'error'">
+      <span>{{ t.type === 'success' ? '✓' : t.type === 'error' ? '✗' : 'ℹ' }}</span>
+      <span>{{ t.message }}</span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,115 @@
+<div class="page-header-row">
+  <div class="page-title-box">
+    <h1>Bảng điều khiển</h1>
+    <p>Chào mừng trở lại! Xem tổng quan số liệu hoạt động của EV Rental.</p>
+  </div>
+</div>
+
+<!-- Stats Cards Grid -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-info">
+      <span class="stat-label">Tổng phương tiện</span>
+      <span class="stat-value">{{ state.totalVehicles() }}</span>
+      <span class="stat-subtext">Đã cập nhật hệ thống</span>
+    </div>
+    <div class="stat-icon-box primary">🚗</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-info">
+      <span class="stat-label">Đơn thuê hôm nay</span>
+      <span class="stat-value">{{ state.todayRentalsCount() }}</span>
+      <span class="stat-subtext">Đơn đăng ký mới</span>
+    </div>
+    <div class="stat-icon-box" style="background-color: #ecfdf5; color: #10b981;">📈</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-info">
+      <span class="stat-label">Đơn chờ duyệt</span>
+      <span class="stat-value">{{ state.pendingRentalsCount() }}</span>
+      <span class="stat-subtext">Cần xử lý phê duyệt</span>
+    </div>
+    <div class="stat-icon-box" style="background-color: #fffbeb; color: #f59e0b;">⏳</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-info">
+      <span class="stat-label">Đang hoạt động</span>
+      <span class="stat-value">{{ state.activeRentalsCount() }}</span>
+      <span class="stat-subtext">Xe đang di chuyển</span>
+    </div>
+    <div class="stat-icon-box" style="background-color: #eff6ff; color: #3b82f6;">⚡</div>
+  </div>
+</div>
+
+<!-- Charts and Activity Row -->
+<div class="dashboard-middle-row">
+  <!-- Chart Card -->
+  <div class="dashboard-card">
+    <div class="card-header-row">
+      <h3 class="card-title">Biểu đồ Doanh thu (Tuần này)</h3>
+      <span style="font-size: 0.85rem; font-weight: 600; color: #10b981;">Tổng thu: {{ state.totalRevenue().toLocaleString() }}đ</span>
+    </div>
+    <div class="chart-container">
+      <canvas #revenueChart></canvas>
+    </div>
+  </div>
+
+  <!-- Activity Card -->
+  <div class="dashboard-card">
+    <div class="card-header-row">
+      <h3 class="card-title">Hoạt động gần đây</h3>
+      <button class="btn-outline" style="padding: 4px 8px; font-size: 0.75rem;" (click)="goToNotifications()">Xem tất cả</button>
+    </div>
+    <div class="activity-list">
+      <div class="activity-item" *ngFor="let act of state.activities()">
+        <span class="activity-marker" [class.success]="act.type === 'success'" [class.warning]="act.type === 'warning'" [class.danger]="act.type === 'danger'"></span>
+        <div class="activity-content">
+          <span class="activity-desc"><strong>{{ act.user }}</strong>: {{ act.action }}</span>
+          <span class="activity-time">{{ act.time }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Featured Vehicles Table -->
+<div class="table-card">
+  <div class="table-header-filters">
+    <h3 class="card-title" style="margin: 0;">Danh sách xe hiển thị nổi bật</h3>
+    <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;" (click)="goToVehicles()">Quản lý kho xe</button>
+  </div>
+  <div class="responsive-table-wrapper">
+    <table class="admin-data-table">
+      <thead>
+        <tr>
+          <th>Phương tiện</th>
+          <th>Hãng</th>
+          <th>Biển số</th>
+          <th>Giá ngày</th>
+          <th>Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let v of state.vehicles().slice(0, 4)" (click)="onVehicleClick(v)" style="cursor: pointer;">
+          <td>
+            <div class="thumbnail-cell">
+              <img [src]="state.getFirstImage(v.imageUrl)" class="table-thumbnail" alt="Image" />
+              <strong>{{ v.name }}</strong>
+            </div>
+          </td>
+          <td>{{ v.brand }}</td>
+          <td>{{ v.licensePlate || 'Chưa cập nhật' }}</td>
+          <td>{{ (v.pricePerDay || 0).toLocaleString() }}đ</td>
+          <td>
+            <span class="status-badge" [class.available]="v.status === 'AVAILABLE'" [class.rented]="v.status === 'RENTED'" [class.maintenance]="v.status === 'MAINTENANCE'">
+              {{ v.status === 'AVAILABLE' ? 'Có sẵn' : v.status === 'RENTED' ? 'Đã thuê' : 'Bảo dưỡng' }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

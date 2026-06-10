@@ -1,0 +1,68 @@
+<div class="page-header-row">
+  <div class="page-title-box">
+    <h1>Hợp tác ký gửi phương tiện</h1>
+    <p>Quy trình thẩm định và tiếp nhận xe ký gửi của các đối tác chủ xe theo bảng Kanban.</p>
+  </div>
+</div>
+
+<div class="kanban-board">
+  <!-- Column 1: NEW -->
+  <div class="kanban-column">
+    <div class="kanban-column-header">
+      <span class="kanban-column-title">📥 Yêu cầu mới</span>
+      <span class="kanban-column-count">{{ getCount('NEW') }}</span>
+    </div>
+    <div class="kanban-card" *ngFor="let item of getByStatus('NEW')">
+      <h4 class="kanban-card-title">{{ item.title }}</h4>
+      <div class="kanban-card-meta">
+        <span>👤 Chủ xe: {{ item.owner }}</span>
+        <span>📞 SĐT: {{ item.phone }}</span>
+        <span>📅 Gửi ngày: {{ item.date }}</span>
+      </div>
+      <div class="kanban-card-footer">
+        <span class="status-badge pending">Chờ xem</span>
+        <button class="btn-primary" style="padding: 4px 8px; font-size: 0.75rem;" (click)="onUpdateStatus(item, 'REVIEWING')">Thẩm định →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Column 2: REVIEWING -->
+  <div class="kanban-column">
+    <div class="kanban-column-header">
+      <span class="kanban-column-title">🔍 Đang thẩm định</span>
+      <span class="kanban-column-count">{{ getCount('REVIEWING') }}</span>
+    </div>
+    <div class="kanban-card" *ngFor="let item of getByStatus('REVIEWING')">
+      <h4 class="kanban-card-title">{{ item.title }}</h4>
+      <p style="font-size: 0.8rem; color: var(--admin-text-secondary); margin: 0;">{{ item.details }}</p>
+      <div class="kanban-card-meta" style="margin-top: 4px;">
+        <span>👤 Chủ xe: {{ item.owner }}</span>
+        <span>📅 Ngày: {{ item.date }}</span>
+      </div>
+      <div class="kanban-card-footer">
+        <span class="status-badge rented">Đang kiểm tra</span>
+        <button class="btn-primary" style="padding: 4px 8px; font-size: 0.75rem; background-color: #10b981;" (click)="onUpdateStatus(item, 'COMPLETED')">Nhận xe ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Column 3: COMPLETED -->
+  <div class="kanban-column">
+    <div class="kanban-column-header">
+      <span class="kanban-column-title">✅ Đã hoàn thành</span>
+      <span class="kanban-column-count">{{ getCount('COMPLETED') }}</span>
+    </div>
+    <div class="kanban-card" *ngFor="let item of getByStatus('COMPLETED')">
+      <h4 class="kanban-card-title">{{ item.title }}</h4>
+      <div class="kanban-card-meta">
+        <span>👤 Chủ xe: {{ item.owner }}</span>
+        <span>📧 Email: {{ item.email }}</span>
+        <span>📅 Hoàn tất: {{ item.date }}</span>
+      </div>
+      <div class="kanban-card-footer">
+        <span class="status-badge available">Đã vào kho xe</span>
+        <span style="font-size: 1.1rem;">🎉</span>
+      </div>
+    </div>
+  </div>
+</div>

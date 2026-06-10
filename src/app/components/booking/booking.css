@@ -1,0 +1,940 @@
+.booking-page {
+  min-height: 100vh;
+  background-color: #e6fcf5;
+  color: #0f172a;
+}
+
+/* Header */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 40px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.logo-mark {
+  background: #16a34a;
+  color: #fff;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.logo-text {
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.5px;
+  color: #1e293b;
+}
+
+.site-nav {
+  display: flex;
+  gap: 28px;
+}
+
+.site-nav a {
+  text-decoration: none;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.site-nav a:hover,
+.site-nav a.active {
+  color: #16a34a;
+}
+
+.btn-outline {
+  padding: 8px 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: transparent;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-outline:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* Container */
+.booking-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+/* Stepper */
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  position: relative;
+}
+
+.step-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #cbd5e1;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.step-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.step-line {
+  height: 2px;
+  background: #cbd5e1;
+  flex: 1.5;
+  margin-top: -20px;
+  transition: all 0.3s ease;
+}
+
+/* Stepper Active/Completed classes */
+.step.active .step-num {
+  border-color: #16a34a;
+  background: #16a34a;
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.15);
+}
+
+.step.active .step-label {
+  color: #1e293b;
+}
+
+.step.completed .step-num {
+  border-color: #16a34a;
+  background: #16a34a;
+  color: #fff;
+}
+
+.step-line.completed {
+  background: #16a34a;
+}
+
+/* Layout */
+.booking-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.step-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+.step-panel h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.panel-desc {
+  color: #64748b;
+  margin: 0 0 28px;
+  font-size: 14px;
+}
+
+.checkout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.form-group input {
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  background-color: #fff;
+  color: #1e293b;
+  font-family: inherit;
+}
+
+.form-group input:focus {
+  border-color: #16a34a;
+}
+
+.step-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 32px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 24px;
+}
+
+.btn-back {
+  background: #f1f5f9;
+  border: none;
+  color: #475569;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-back:hover {
+  background: #e2e8f0;
+}
+
+.btn-next {
+  background: #16a34a;
+  border: none;
+  color: #fff;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-next:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.btn-next.confirm {
+  background: #16a34a;
+}
+
+.btn-next.confirm:hover {
+  background: #15803d;
+}
+
+.btn-next:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
+
+/* Confirmation Details */
+.confirmation-details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.confirm-group {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.confirm-group h4 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.confirm-group p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #475569;
+}
+
+/* Right Summary Panel */
+.summary-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+.summary-card h3 {
+  margin: 0 0 20px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.car-info-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.car-info-row img {
+  width: 90px;
+  height: 60px;
+  object-fit: cover;
+  background-color: #1e293b;
+  border-radius: 8px;
+}
+
+.car-placeholder-small {
+  width: 90px;
+  height: 60px;
+  background-color: #1e293b;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+}
+
+.car-info-row h4 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.car-info-row p {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.details-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.details-row.total {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-top: 4px;
+}
+
+.total-price {
+  color: #16a34a;
+}
+
+.divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 8px 0;
+}
+
+/* Success Panel */
+.success-panel {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.success-icon {
+  width: 64px;
+  height: 64px;
+  background: #16a34a;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin: 0 auto 20px;
+}
+
+.success-panel h2 {
+  font-size: 24px;
+  color: #1e293b;
+  margin-bottom: 12px;
+}
+
+.success-desc {
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+/* QR Section */
+.qr-section {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 30px;
+}
+
+.qr-section h3 {
+  font-size: 18px;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.qr-desc {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 16px;
+}
+
+.qr-box {
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 16px;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+
+.qr-image {
+  max-width: 200px;
+  height: auto;
+  display: block;
+}
+
+.qr-details {
+  text-align: left;
+  background: #fff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.qr-details p {
+  margin: 4px 0;
+  font-size: 15px;
+  color: #1e293b;
+}
+
+.qr-details .deposit-amount {
+  color: #16a34a;
+  font-size: 18px;
+}
+
+/* Cash Section */
+.cash-section {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 30px;
+}
+
+.cash-section h3 {
+  font-size: 18px;
+  color: #1e293b;
+  margin-bottom: 16px;
+}
+
+.cash-details {
+  text-align: left;
+  background: #fff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.cash-details p {
+  margin: 8px 0;
+  font-size: 15px;
+  color: #1e293b;
+  line-height: 1.5;
+}
+
+.cash-details .deposit-amount {
+  color: #16a34a;
+  font-size: 18px;
+}
+
+.success-note {
+  font-size: 13px;
+  color: #64748b;
+  font-style: italic;
+  margin-top: 16px;
+}
+
+.next-steps-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: left;
+  margin-bottom: 36px;
+}
+
+.next-steps-card h3 {
+  margin: 0 0 14px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.next-steps-card ol {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.next-steps-card li {
+  font-size: 14px;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.success-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* Loading state styles */
+.loading-state {
+  text-align: center;
+  padding: 100px 20px;
+}
+
+.spinner {
+  width: 45px;
+  height: 45px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #16a34a;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Textarea */
+.form-textarea {
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  background-color: #fff;
+  color: #1e293b;
+  font-family: inherit;
+  resize: vertical;
+}
+.form-textarea:focus {
+  border-color: #16a34a;
+}
+
+/* Form row 2 columns */
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .form-row-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Required asterisk */
+.required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+/* ---- Payment Method List ---- */
+.payment-method-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.method-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #fff;
+}
+
+.method-option input[type="radio"] {
+  display: none;
+}
+
+.method-option.selected {
+  border-color: #16a34a;
+  background: rgba(22, 163, 74, 0.04);
+  box-shadow: 0 0 0 1px #16a34a;
+}
+
+.method-option:hover {
+  border-color: #94a3b8;
+}
+
+.method-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.method-option div strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.method-option div p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* ---- Confirm Price Rows ---- */
+.confirm-price-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.confirm-price-row.total-row {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 10px;
+  margin-top: 4px;
+}
+
+/* ---- Deposit Box (in confirm step) ---- */
+.deposit-group {
+  border: 1px solid #16a34a;
+  background: rgba(22, 163, 74, 0.02);
+}
+
+.deposit-box {
+  margin-top: 14px;
+  background: rgba(22, 163, 74, 0.07);
+  border: 1px dashed rgba(22, 163, 74, 0.35);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.deposit-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.deposit-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.deposit-amount {
+  font-size: 18px;
+  font-weight: 800;
+  color: #16a34a;
+}
+
+.deposit-remain {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #64748b;
+  border-top: 1px solid rgba(22, 163, 74, 0.2);
+  padding-top: 8px;
+}
+
+.deposit-method {
+  font-size: 13px;
+  color: #475569;
+  display: flex;
+  gap: 6px;
+}
+
+.deposit-method strong {
+  color: #1e293b;
+}
+
+/* ---- Deposit Summary Box (right panel) ---- */
+.deposit-summary-box {
+  margin-top: 20px;
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.08), rgba(22, 163, 74, 0.03));
+  border: 1.5px solid rgba(22, 163, 74, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.deposit-summary-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: #15803d;
+  margin-bottom: 8px;
+}
+
+.deposit-summary-amount {
+  font-size: 26px;
+  font-weight: 800;
+  color: #16a34a;
+  margin-bottom: 6px;
+}
+
+.deposit-summary-note {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 800px) {
+  .booking-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Payment Section */
+.payment-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.payment-type-card {
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.payment-type-card:hover {
+  border-color: #94a3b8;
+}
+
+.payment-type-card.selected {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 1px #16a34a, 0 4px 6px -1px rgba(22, 163, 74, 0.05);
+}
+
+.payment-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  position: relative;
+}
+
+.custom-radio {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  display: inline-block;
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.custom-radio.checked {
+  border-color: #16a34a;
+}
+
+.custom-radio.checked::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #16a34a;
+}
+
+.payment-card-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.payment-card-title strong {
+  font-size: 15px;
+  color: #1e293b;
+}
+
+.payment-card-title p {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.promo-badge {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(22, 163, 74, 0.1);
+  color: #16a34a;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+/* Payment Sub-options */
+.payment-sub-options {
+  background-color: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sub-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  cursor: pointer;
+  font-size: 14px;
+  color: #334155;
+  transition: color 0.2s ease;
+}
+
+.sub-option:hover {
+  color: #0f172a;
+}
+
+.custom-radio.sub {
+  width: 16px;
+  height: 16px;
+}
+
+.custom-radio.sub.checked::after {
+  top: 3px;
+  left: 3px;
+  width: 6px;
+  height: 6px;
+}
+
+/* Breakdown rows additional styles */
+.details-row.discount {
+  color: #ef4444;
+}
+
+.discount-val {
+  font-weight: 700;
+}
+
+.deposit-highlight {
+  background-color: rgba(22, 163, 74, 0.05);
+  border: 1px dashed rgba(22, 163, 74, 0.3);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.deposit-val {
+  color: #16a34a;
+  font-size: 14px;
+}
+
+@media (max-width: 800px) {
+  .booking-grid {
+    grid-template-columns: 1fr;
+  }
+}
