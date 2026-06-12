@@ -38,13 +38,7 @@ export class RegisterComponent {
   register() {
     if (!this.canSubmit) {
       this.isError = true;
-      this.message = 'Vui lòng nhập đầy đủ và đúng định dạng thông tin.';
-      return;
-    }
-
-    if (this.user.password !== this.confirmPassword) {
-      this.isError = true;
-      this.message = 'Mật khẩu xác nhận không khớp.';
+      this.message = 'Vui lòng nhập đầy đủ thông tin (Mật khẩu ít nhất 8 ký tự).';
       return;
     }
 
@@ -59,6 +53,8 @@ export class RegisterComponent {
     }
     this.user.age = 25;
     this.user.lastname = 'Khách';
+    // Add phone from the separate variable into user if backend accepts it
+    (this.user as any).phone = this.phone;
 
     this.userService.register(this.user).subscribe({
       next: (res: ApiResponse<unknown>) => {
@@ -86,8 +82,7 @@ export class RegisterComponent {
     const phoneValid = this.phone.trim().length >= 10;
     const emailValid = this.user.email.includes('@');
     const passwordValid = this.user.password.length >= 8;
-    const confirmPasswordValid = this.confirmPassword.length >= 8;
 
-    return firstnameValid && phoneValid && emailValid && passwordValid && confirmPasswordValid;
+    return firstnameValid && phoneValid && emailValid && passwordValid;
   }
 }
