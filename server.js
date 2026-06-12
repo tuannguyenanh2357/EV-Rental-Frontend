@@ -6,7 +6,7 @@ const distDir = path.join(__dirname, 'dist', 'my-app', 'browser');
 
 app.use(express.static(distDir));
 
-app.get('*', function(req, res) {
+app.use(function(req, res) {
   res.sendFile(path.join(distDir, 'index.html'));
 });
 
