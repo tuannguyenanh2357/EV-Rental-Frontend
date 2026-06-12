@@ -4,10 +4,10 @@ const app = express();
 
 const distDir = path.join(__dirname, 'dist', 'my-app', 'browser');
 
-app.use(express.static(distDir));
+app.use(express.static(distDir, { index: 'index.csr.html' }));
 
 app.use(function(req, res) {
-  res.sendFile(path.join(distDir, 'index.html'));
+  res.sendFile(path.join(distDir, 'index.csr.html'));
 });
 
 const port = process.env.PORT || 8080;
