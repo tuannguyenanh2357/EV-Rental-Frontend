@@ -1,0 +1,47 @@
+<div class="map-wrapper">
+  <!-- Search bar -->
+  <div class="search-overlay">
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (keydown)="onSearchKeydown($event)"
+        placeholder="🔍 Tìm kiếm địa điểm..."
+        class="search-input"
+      />
+      <button (click)="searchLocation()" class="search-btn" [disabled]="isSearching">
+        {{ isSearching ? '...' : 'Tìm' }}
+      </button>
+      <button (click)="goToMyLocation()" class="location-btn" title="Vị trí của tôi">📍</button>
+    </div>
+    <p *ngIf="searchError" class="search-error">{{ searchError }}</p>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend-overlay">
+    <div class="legend-item"><span class="legend-icon">⚡</span> Trạm sạc EV</div>
+    <div class="legend-item"><span class="legend-icon">📍</span> Vị trí của bạn</div>
+    <div class="legend-count">{{ stations().length }} trạm</div>
+  </div>
+
+  <!-- Map -->
+  <div id="leaflet-map" class="leaflet-map"></div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading()" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Đang tải trạm sạc...</p>
+  </div>
+
+  <!-- Route Info Bar -->
+  <div *ngIf="showClearRoute()" class="route-info-bar">
+    <span class="route-info-text">{{ routeInfo() }}</span>
+    <button (click)="clearRoute()" class="clear-route-btn">✕ Xóa đường</button>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="isError()" class="error-overlay">
+    <p>⚠️ Không thể kết nối API trạm sạc.</p>
+    <p style="font-size:11px; color:#888;">Vui lòng kiểm tra lại Backend.</p>
+  </div>
+</div>

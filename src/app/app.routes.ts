@@ -7,6 +7,7 @@ import { VehicleDetailComponent } from './components/vehicle-detail/vehicle-deta
 import { BookingComponent } from './components/booking/booking';
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { AdminComponent } from './components/admin/admin';
+import { MapComponent } from './components/map/map';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -19,5 +20,6 @@ export const routes: Routes = [
   { path: 'admin/:tab', component: AdminComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'map', component: MapComponent },
   { path: '**', redirectTo: 'dashboard' }
 ];

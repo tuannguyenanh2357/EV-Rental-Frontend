@@ -1,0 +1,219 @@
+.map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+}
+
+.leaflet-map {
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  z-index: 1;
+}
+
+/* ── Search Bar ──────────────────────────────────────────── */
+.search-overlay {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: 90%;
+  max-width: 460px;
+}
+
+.search-box {
+  display: flex;
+  gap: 6px;
+  background: white;
+  border-radius: 12px;
+  padding: 6px 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  padding: 4px 8px;
+  background: transparent;
+}
+
+.search-btn {
+  background: #1e40af;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.search-btn:hover { background: #1e3a8a; }
+.search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.location-btn {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.location-btn:hover { background: #dcfce7; }
+
+.search-error {
+  margin-top: 6px;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* ── Legend ──────────────────────────────────────────────── */
+.legend-overlay {
+  position: absolute;
+  bottom: 28px;
+  left: 12px;
+  z-index: 1000;
+  background: white;
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #374151;
+}
+
+.legend-icon { font-size: 16px; }
+
+.legend-count {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #6b7280;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 4px;
+}
+
+/* ── Loading ─────────────────────────────────────────────── */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.75);
+  gap: 10px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #1e40af;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.route-info-bar {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background: #1e40af;
+  color: white;
+  border-radius: 24px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 16px rgba(30,64,175,0.35);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.route-info-text {
+  flex: 1;
+}
+
+.clear-route-btn {
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.4);
+  color: white;
+  border-radius: 12px;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.clear-route-btn:hover {
+  background: rgba(255,255,255,0.35);
+}
+
+.error-overlay {
+  position: absolute;
+  bottom: 28px;
+  right: 12px;
+  z-index: 1000;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #dc2626;
+  text-align: center;
+}
+
+
+/* ── Custom Marker Icons ─────────────────────────────────── */
+:host ::ng-deep .station-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(30,64,175,0.5);
+  border: 2px solid white;
+}
+
+:host ::ng-deep .station-icon::after {
+  content: "⚡";
+  transform: rotate(45deg);
+  font-size: 18px;
+  display: block;
+}
+
+:host ::ng-deep .user-location-icon,
+:host ::ng-deep .search-result-icon {
+  font-size: 28px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  animation: bounce 1s ease-in-out 2;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}

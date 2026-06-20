@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { VehicleService } from '../../services/vehicle';
 import { UserService } from '../../services/user';
 import { Vehicle } from '../../models/vehicle';
+import { MapComponent } from '../map/map';
 
 interface FeaturedCar {
   id?: number;
@@ -23,7 +24,7 @@ interface FeaturedCar {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, MapComponent],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
